@@ -1,0 +1,112 @@
+/*Polices*/
+@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri&family=Montserrat&family=Varela+Round&display=swap');
+/*
+font-family: 'Hind Siliguri', sans-serif;
+font-family: 'Montserrat', sans-serif;
+font-family: 'Varela Round', sans-serif;
+*/
+
+
+body, html{
+    height: 100%;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+}
+
+.backgroundBleu {
+    background-color: rgba(226, 246, 255, 0.55);
+}
+
+.conteneur {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 60vw;
+    height: auto;
+    gap : 3vh; 
+    border : 3px black solid; 
+    border-radius: 10px;
+    padding: 3vw;
+    background-image: linear-gradient(203deg, rgb(27, 16, 252) 0%, rgb(62, 82, 255) 23%, rgba(0,212,255,1) 55%, rgba(175,241,255,1) 95%);   
+    background-size: 200% 400%;
+    -webkit-animation: degradAnime 8s ease infinite;
+    -moz-animation: degradAnime 8s ease infinite;
+    animation: degradAnime 8s ease-in-out infinite; 
+}
+
+@-webkit-keyframes degradAnime {
+    0%{background-position:0% 19%}
+    50%{background-position:100% 82%}
+    100%{background-position:0% 19%}
+  }
+  @-moz-keyframes degradAnime {
+    0%{background-position:0% 19%}
+    50%{background-position:100% 82%}
+    100%{background-position:0% 19%}
+  }
+  @keyframes degradAnime {
+    0%{background-position:0% 19%}
+    50%{background-position:100% 82%}
+    100%{background-position:0% 19%}
+  }
+
+.big-center-div {
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #F2F2F2;
+    border : 3px solid black; 
+    border-radius: 10px;
+    max-width: 60vw;
+    padding : 2rem; 
+    box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.43);
+    margin-bottom: 3vh;
+
+
+
+
+}
+
+.big-center-div p {
+    text-align: center;
+    font-size: 2rem;
+}
+
+.imagePlace {
+    background: linear-gradient(203deg, #008CC9 0%, rgba(0, 164, 217, 0.75) 23.65%, rgba(12, 193, 237, 0.5) 57.56%, rgba(105, 222, 255, 0.25) 97.64%, rgba(105, 222, 255, 0.25) 100%);
+}
+
+img {
+    width: auto;
+    height: 25%;
+}
+
+/*Images*/
+.logo {
+    width: 20vw;
+    height: auto;
+}
+
+.bigContain {
+    width: 100vw;
+    height: 100vh; 
+    display: flex;
+    align-items: center;
+    justify-content: center;   
+}
+
+
+.connect {
+    padding : 1vw; 
+    border : 2px solid black; 
+    border-radius: 10px; 
+    transition: 0.2s ease-in-out;
+
+}
+
+.connect:hover {
+    transform: scale(1.05);
+    transition: 0.2s ease-in-out;
+}
