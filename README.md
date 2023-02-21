@@ -9,11 +9,12 @@ formaliser le besoin puis de développer une application communicante intégrant
 des données et respectant les paradigmes de qualité (ergonomie des IHM, qualité logicielle…).</i></p>
 
 <p>Cette applications sera développée au sein d'un groupe de 5 étudiants en informatique de l'IUT de Rodez </p>
-   <ul><li>Romain Courbaize</li>
-   <li>Vincent Faure ( Product Owner )</li>
-   <li>Jules Blanchard ( Scrum Master )</li>
-   <li>Thibauld Cosati</li>
-   <li>Amine Daamouch</li></ul>
+   <ul>
+      <li>Emmanuel Gomes-Soares</li>
+      <li>Clement Laurie ( Product Owner )</li>
+      <li>Simon Launay ( Scrum Master )</li>
+      <li>Guillaume Medard</li>
+   </ul>
 <p>Les clients de ces applications sont les enseignants tuteurs</p>
 <h2>CheckYourMood</h2>
   <p>Cette application doit permettre à un utilisateur enregistré sur la plateforme d’indiquer son
@@ -36,8 +37,8 @@ sprint. Ces retours permettent d’améliorer le produit.</br></p>
   
  <h3>Les liens</h3>
  <ul>
-  <li>lien vers le drive => https://drive.google.com/drive/folders/19DsVFWXLmuwtKa9MBTuknUWmm_kkX3rl?usp=sharing</li>
-  <li>lien vers le zenhub => https://github.com/VyynceeF/CheckYourMood#workspaces/checkyourmood-634435fa9e69d4bdc803957d/board</li>
+  <li>lien vers le drive => https://drive.google.com/drive/u/1/folders/1Ys1NWiQOT6FMVLQ7nGZuSuleCghK_43r</li>
+  <li>lien vers le zenhub => xxx</li>
  </ul>
  
  Attention pour exécuter le code sur Uwamp il est nécessaire de récuperer le dossier check-your-mood et de le mettre dans www/ de Uwamp sinon une erreur s'affiche.
