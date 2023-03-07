@@ -38,6 +38,7 @@ sprint. Ces retours permettent d’améliorer le produit.</br></p>
  <h3>Les liens</h3>
  <ul>
   <li>lien vers le drive => https://drive.google.com/drive/u/1/folders/1Ys1NWiQOT6FMVLQ7nGZuSuleCghK_43r</li>
+  <li>lien vers notre audit => https://docs.google.com/document/d/1kxq367u-65z5Z6T6IOGzGXYS-8NRGLGga80fQNagEi4/edit#</li>
   <li>lien vers le zenhub => xxx</li>
  </ul>
  
