@@ -39,7 +39,7 @@ sprint. Ces retours permettent d’améliorer le produit.</br></p>
  <ul>
   <li>lien vers le drive => https://drive.google.com/drive/u/1/folders/1Ys1NWiQOT6FMVLQ7nGZuSuleCghK_43r</li>
   <li>lien vers notre audit => https://docs.google.com/document/d/1kxq367u-65z5Z6T6IOGzGXYS-8NRGLGga80fQNagEi4/edit#</li>
-  <li>lien vers le zenhub => xxx</li>
+  <li>lien vers le zenhub => https://app.zenhub.com/workspaces/checkyourmood-pink1-63f49bad1733460011e6ff46/board</li>
  </ul>
  
  Attention pour exécuter le code sur Uwamp il est nécessaire de récuperer le dossier check-your-mood et de le mettre dans www/ de Uwamp sinon une erreur s'affiche.
