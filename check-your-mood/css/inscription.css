@@ -1,0 +1,235 @@
+/*Polices*/
+@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri&family=Montserrat&family=Varela+Round&display=swap');
+/*
+font-family: 'Hind Siliguri', sans-serif;
+font-family: 'Montserrat', sans-serif;
+font-family: 'Varela Round', sans-serif;
+*/
+body {
+    background-color: rgb(206, 233, 255);
+
+}
+.bigContainer {
+    width: 100%;
+    background-color: rgb(206, 233, 255);
+}
+
+h1 {
+    color:#008CC9!important; 
+    font-family: 'Varela Round', sans-serif!important;
+}
+
+.bigContainer {
+    width: 100vw;
+    height: 100vh;
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+}
+
+.ligne {
+    display: flex;
+    border-radius: 40px;
+    height: 70vh;
+}
+
+.container {
+    background-color: white;
+    border-radius: 40px;
+
+}
+
+
+.bigLeft {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 40px;
+    height: 100%;
+    padding-top: 5vh;
+    padding-bottom: 2vh;
+    padding-left:1vw!important;
+    padding-right:1vw!important;
+    font-size: 1.3em;
+}
+
+.logoInput {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 2vh;
+}
+
+.bigRight {
+    display: flex;
+    justify-content: center;  
+    align-items: center;
+    height: 100%;  
+    border-radius: 40px;
+    background-image: linear-gradient(203deg, rgb(27, 16, 252) 0%, rgb(62, 82, 255) 23%, rgba(0,212,255,1) 55%, rgba(175,241,255,1) 95%);   
+    background-size: 100% 400%;
+    -webkit-animation: degradAnime 10s ease infinite;
+    -moz-animation: degradAnime 10s ease infinite;
+    animation: degradAnime 10s ease-in-out infinite; 
+
+}
+
+@-webkit-keyframes degradAnime {
+    0%{background-position:0% 19%}
+    50%{background-position:100% 82%}
+    100%{background-position:0% 19%}
+}
+@-moz-keyframes degradAnime {
+    0%{background-position:0% 19%}
+    50%{background-position:100% 82%}
+    100%{background-position:0% 19%}
+}
+@keyframes degradAnime {
+    0%{background-position:0% 19%}
+    50%{background-position:100% 82%}
+    100%{background-position:0% 19%}
+}
+
+.titre {
+    margin-bottom: 2vh;
+    margin-top: 2vh;
+    text-align: center;
+}
+
+.wrapper {
+    height: 100%;
+    width: 80%;
+}
+
+form {
+    height: 80%!important;
+}
+
+/*Style input*/
+
+input{
+
+    font-family: 'Hind Siliguri', sans-serif;
+    margin: 0!important;
+}
+
+.contain-mdp {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.wrapperForm {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    height: 100%;
+}
+
+.btn-connect{
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    gap: 1.5rem; 
+
+}
+
+.err {
+    color : red; 
+}
+
+img {
+    width: 69%;
+    height: fit-content;
+}
+
+.errDonnees {
+    border: 1px solid red; 
+}
+
+.btn-connect span {
+    display: flex;
+    align-items: center;
+    justify-items: left!important;
+}
+
+.btn{
+    color: white;
+    background-color: rgba(5, 150, 214, 0.95);
+    border: none;
+    border-radius: 10px;
+    width: 17vh;
+    padding: 1.5vh;
+    font-size: 2vh!important;
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+}
+
+.btn:hover {
+    background-color: white;
+    color: rgba(5, 150, 214, 0.95)!important;
+    transition: color 0.2s ease-in-out;
+    border: 1px solid rgba(5, 150, 214, 0.95);
+
+}
+
+@media (max-width: 1200px) {
+
+    img {
+        width: 49%;
+        height: fit-content;
+    }
+
+}
+@media (max-width: 992px) {
+    .ligne {
+        display: flex;
+        justify-content: space-between;
+        flex-direction: column-reverse;
+        border-radius: 40px;
+        height: 80vh;
+    }
+
+    
+    .bigLeft {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 40px;
+        height: 65%;
+        padding-top: 2vh!important;
+        padding-left:3.1vw!important;
+        padding-right:3.1vw!important;
+        font-size: 1.5rem;
+    }
+    
+
+    .bigRight {
+        display: flex;
+        justify-content: center;  
+        align-items: center;
+        height: 35%;
+        padding: 9%; 
+        text-align: center ;
+    }
+
+    img {
+        width: 49%;
+        height: fit-content;
+    }
+
+    .btn{
+        color: white;
+        background-color: rgba(5, 150, 214, 0.95);
+        border: none;
+        border-radius: 10px;
+        width: 17vh;
+        padding: 1.05vh;
+        font-size: 1.1em!important;
+        cursor: pointer;
+        transition: 0.2s ease-in-out;
+    }
+}
+

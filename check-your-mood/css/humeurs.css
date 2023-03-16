@@ -1,0 +1,280 @@
+/*Polices*/
+@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri&family=Montserrat&family=Varela+Round&display=swap');
+/*
+font-family: 'Hind Siliguri', sans-serif;
+font-family: 'Montserrat', sans-serif;
+font-family: 'Varela Round', sans-serif;
+*/
+
+body, html{
+    height: 100%;
+}
+
+.backgroundBleu {
+    background-color: rgba(226, 246, 255, 0.55);
+}
+
+/*Modification.php*/
+.contain {
+    width: 100%;
+}
+
+.contain{
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+    background-color: white;
+}
+
+
+.contain .container {
+
+    margin-top: 5vh;
+}
+
+.contain span {
+
+    font-size: large;
+}
+
+.pager {
+    margin-top: 8em;
+}
+/* Ajout taille de la navBar */
+.page {
+    padding-top: 64px;
+    justify-content: center;
+}
+
+.contain-mood p{
+    font-family: 'Varela Round', sans-serif;
+    font-size: 2vw;
+}
+
+/*HUMEUR TAB*/
+
+.contain-mood{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 90%;
+    height: 100%;
+    background-color: white;
+}
+
+/*TITRE ET BUTTON*/
+.head-mood{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 20px;
+    padding-right: 50px;
+    margin-top: 15px;
+}
+
+.humeurTitre {
+    font-size: 5rem;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+
+}
+
+.btn-ajout{
+    font-family: 'Varela Round', sans-serif;
+    background-color: #008CC9;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: medium;  
+}
+
+.btn-ajout:hover{
+    background-color: white;
+    border: #008CC9 1px solid;
+    color: #008CC9;
+}
+
+/* Masquez la forme Popup */
+#popupForm {
+	border : 2px solid rgb(0, 157, 255)!important; 
+    background-color:  rgb(170, 220, 250);
+	display: none;
+	position: fixed;
+	left: 50%;
+	top: 30%;
+    width: 70%;
+	transform: translate(-45%, 5%);
+	border: 1px solid lightgray;
+	z-index: 9;
+	padding: 15px;
+	border-radius: 10px;
+    font-family: 'Varela Round', sans-serif;
+}
+
+#popupForm hr{
+    background-color: rgba(0, 0, 0, 0.18);
+    width: 100%;
+}
+
+.sansBordure {
+	border: none;
+	margin: 0;
+}
+
+.ajoutHumeurForm {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+	margin-bottom: 10px;
+}
+
+.ajoutHumeurForm input {
+	margin-left: 10px;
+}
+
+.btnNav {
+	display: flex;
+    justify-content: end;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+/* Visualisation humeur (petit cadre) */
+
+
+.containCadre {
+	
+	padding: 2vh;
+	display: flex;
+	flex-direction:column;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	height: auto;
+    border : 2px solid rgb(0, 157, 255); 
+    background-color:  rgba(0, 157, 255, 0.279);
+	border-radius: 10px;
+	margin-top: 2vw;
+	margin-bottom: 0;
+	margin-left: 0;
+	margin-right: 0;
+}
+
+
+.containCadre span {
+    font-family: 'Signika Negative', sans-serif;
+    font-size: 18px;
+	color:rgb(0, 0, 0);
+}
+
+.containCadre .title {
+    font-size: 26px;
+}
+
+.containCadre:hover {
+	transform: scale(1.05);
+}
+
+.popupHumeur {
+	background: white;
+	display: none;
+	position: fixed;
+	left: 50%;
+	top: 30%;
+    width: 40vw;
+	transform: translate(-45%, 5%);
+	z-index: 9;
+    border-radius: 10px;
+}
+
+.containPopup .title {
+    font-size: 26px;
+}
+.containPopup {
+	
+	padding: 2vh;
+	display: flex;
+	flex-direction:column;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	height: auto;
+    border : 2px solid rgb(0, 157, 255); 
+    background-color:  rgba(0, 157, 255, 0.279);
+	border-radius: 10px;
+}
+
+
+.annuler {
+    font-family: 'Varela Round', sans-serif;
+    background-color: white;
+    color: red;
+    border: red solid 1px;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: medium;
+    margin-bottom: 1vh;
+    margin-right: 1vw;
+}
+
+.annuler:hover{
+    background-color: red;
+    color: white;
+    border: red solid 1px;
+}
+
+/* Activation du button pour la pagination */
+.active {
+    background-color: rgb(38, 0, 255)!important;
+    color: whitesmoke;
+}
+
+.bt-pagination {
+    width: 40px;
+    height: 30px;
+    margin: 4px!important; 
+    border : 2px solid rgb(0, 157, 255); 
+    background-color:  rgba(0, 157, 255, 0.279);
+    border-radius: 5px;
+}
+
+.bt-pagination:hover {
+    transform: scale(1.05);
+}
+
+
+
+/* Classes pour flouter l'arrière plan */
+.flou{
+    filter: blur(10px);
+}
+
+
+.confirmerAjout {
+    font-family: 'Varela Round', sans-serif;
+    background-color: #008CC9;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: medium;
+    margin-bottom: 1vh;
+    margin-right: 1vw;
+
+}
+
+.confirmerAjout:hover {
+    background-color: white;
+    border: #008CC9 1px solid;
+    color: #008CC9;
+}

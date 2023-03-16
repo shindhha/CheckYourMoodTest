@@ -1,0 +1,202 @@
+/*Polices*/
+@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri&family=Montserrat&family=Varela+Round&display=swap');
+/*
+font-family: 'Hind Siliguri', sans-serif;
+font-family: 'Montserrat', sans-serif;
+font-family: 'Varela Round', sans-serif;
+*/
+.contain {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.annuler {
+    font-family: 'Varela Round', sans-serif;
+    background-color: white;
+    color: red;
+    border: red solid 1px;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: medium;
+
+}
+
+.annuler:hover{
+    background-color: red;
+    color: white;
+    border: red solid 1px;
+}
+
+.containModificationEnregistrer a {
+    text-decoration: none!important;
+}
+.btn-ajout{
+    font-family: 'Varela Round', sans-serif;
+    background-color: #008CC9;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: medium;
+    margin-bottom: 1vh;
+    margin-right: 1vw;
+
+
+}
+
+/* pour le bouton annuler lors de la modif de mot de passe */ 
+.btn-annuler {
+    font-family: 'Varela Round', sans-serif;
+    background-color: white;
+    color: red;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: medium;
+    margin-bottom: 1vh;
+    margin-right: 1vw; 
+    border : 1px solid red; 
+}
+
+
+
+.containModificationEnregistrer .annuler:hover {
+    color :white; 
+}
+
+.btn-annuler:hover {
+    background-color: red;
+    color: white;
+}
+
+
+.btn-ajout:hover{
+    background-color: white;
+    border: #008CC9 1px solid;
+    color: #008CC9;
+}
+
+.btnSupprimerCompte {
+    font-family: 'Varela Round', sans-serif;
+    background-color: red;
+    color : white; 
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: medium;  
+}
+
+.btnSupprimerCompte:hover {
+    transform: scale(1.05);
+}
+
+.btnNav {
+	display: flex;
+    justify-content: end;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+
+[class^="col-"] {
+	text-align:center;  /* Centrage du texte */
+}
+
+
+
+/*Message erreur connexion*/
+
+.err{
+    font-family: 'Hind Siliguri', sans-serif;
+    color: red;
+}
+
+.ok{
+    font-family: 'Hind Siliguri', sans-serif;
+    color: lightgreen;
+}
+
+
+
+
+
+/*Modification.php*/
+
+.contain span {
+
+    font-size: large;
+}
+
+.textModifier {
+    
+    color: #008CC9;
+    font-family: 'Varela Round', sans-serif;
+    font-size: xx-large;
+}
+
+.containModification {
+    color: #008CC9;
+    font-family: 'Varela Round', sans-serif;
+    font-size: large;
+    text-align: left;
+}
+
+.btnModifMdp {
+    margin-top: 2rem; 
+}
+.containModification input {
+
+    margin-bottom: 10px;
+}
+
+#popupFormModification {
+	display: none;
+	position: fixed;
+	left: 50%;
+	top: 30%;
+    width: 50%;
+	transform: translate(-45%, 5%);
+	border: 1px solid lightgray;
+	z-index: 9;
+	padding: 15px;
+    border : 2px solid rgb(0, 157, 255); 
+    background-color:  rgb(170, 222, 255);
+	border-radius: 10px;
+    font-family: 'Varela Round', sans-serif;
+}
+
+#popupSupprimer {
+	display: none;
+	position: fixed;
+	left: 50%;
+	top: 30%;
+    width: 50%;
+	transform: translate(-45%, 5%);
+	z-index: 9;
+	padding: 15px;
+    border : 2px solid rgb(0, 157, 255); 
+    background-color:  rgb(170, 222, 255);
+	border-radius: 10px;
+    font-family: 'Varela Round', sans-serif;
+}
+
+.glyphicon-pencil {
+    color :rgb(0, 119, 255);
+    font-size: 3rem;
+}
