@@ -28,7 +28,7 @@ class DonneesService
                     $setter .= " , ";
                 }
                 $setter .= " ".$cle." = :".$cle." ";
-                $tabExec[$cle]=$value;
+                $tabExec[$cle] = $value;
             }
             
         }

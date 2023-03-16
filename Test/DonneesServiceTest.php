@@ -1,24 +1,70 @@
 <?php 
+require_once 'yasmf\DataSource.php';
+require_once 'services/DonneesService.php';
+require_once 'Test\DataBase.php';
+
+use services\DonneesService;
 use PHPUnit\Framework\TestCase;
 use yasmf\DataSource;
-require_once 'yasmf\DataSource.php';
-use services\DonneesService;
-require_once 'services/DonneesService.php';
-
-use DataBase;
-require_once 'Test/DataBase.php';
+use PHPUnit\Framework;
+use function PHPUnit\Framework\assertEquals;
+use function PHPUnit\Framework\assertTrue;
 
 class DonneesServiceTest extends TestCase
 {
+    private $pdo;
+    private $services;
+
+    protected function setUp(): void
+    {
+        $this->services = DonneesService::getDefaultDonneesService();
+        $this->pdo =  DataBase::getPDOTest();
+    }
+
+    public function getDataSet() {
+        return new MyApp_DbUnit_ArrayDataSet(array(
+            [
+                'utilisateur' => [
+                    'codeUtil' => 1,
+                    'prenom' => 'Jules22b',
+                    'nom' => 'Blanchard',
+                    'identifiant' => 'jules22b',
+                    'mail' => 'jules.blanchard@iut-rodez.fr',
+                    'motDePasse' => '0cbc6611f5540bd0809a388dc95a615b'
+                ]
+            ]
+        ));
+    }
     public function testsUpdateDataSucces()
     {
 
-        $services = DonneesService::getDefaultDonneesService();
-        $pdo =  DataBase::getPDOTest();
+        // GIVEN Un utilisateur ayant saisie un nouveau mot de passe valide
+        $idUtil = 1;
+        $tabMotDePasse = [
+            'motDePasse' => 'TestMotDePasse'
+        ];
+        // WHEN Il valide la modification de son mot de passe
+        $result = $this->services->updateData($this->pdo, $tabMotDePasse, $idUtil);
+        // THEN Son mot de passe et mis a jour dans la base de données après avoir été cryptées en md5
+        $motDePasseModifier = $this->pdo->query("SELECT motDePasse FROM utilisateur WHERE codeUtil = 1");
+        $motDePasseModifier = $motDePasseModifier->fetchAll();
+        assertTrue($result);
+        assertEquals(md5('TestMotDePasse'),$motDePasseModifier[0]['motDePasse']);
+        // GIVEN Un utilisateur ayant saisie un nouvel identifiant valide
+        // WHEN Il valide la modification de son identifiant
+        // THEN Son identifiant et mis à jour dans la base de données
+
+        // GIVEN Un utilisateur ayant saisie plusieur nouvelles informations valides a propos de son compte
+        // WHEN Il valide la modification de ses informations
+        // THEN L'enssemble de ces informations sont mis à jour dans la base de données.
+
+        /* -------------------------- ANCIEN TEST -------------------------- */
+        /*
         $tab = [  
             'nom' => 'Blanchard',
             'prenom' => 'Jules22b',
             'mail' => 'jules.blanchard@iut-rodez.fr',
+
             
         ];
         $util = 1;
@@ -26,11 +72,11 @@ class DonneesServiceTest extends TestCase
             
         
         // Appelez la méthode à tester avec les données de test
-        $result = $services->updateData($pdo, $tab, $util);
+        $result = $this->services->updateData($pdo, $tab, $util);
 
         // Assurez-vous que les résultats de la méthode sont ceux que vous attendez
         $this->assertEquals($expectedResult, $result);
-
+        */
 
     }
     public function testsUpdateFaillure()
