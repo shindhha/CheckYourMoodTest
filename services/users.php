@@ -4,10 +4,24 @@
 namespace services;
 
 use PDOException;
+use yasmf\DataSource;
 
-class DonneesService
+class User extends Table
 {
-    
+    private $id;
+    public function __construct()
+    {
+        parent::__construct("utilisateur",$this);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
     /**
      * Cette fonction permet de modifier les données de l'utilisateur qui possède le codeUtilisateur :$util
      * les données modifiables sont : (identifiant, mot de passe, nom, prenom, mail)

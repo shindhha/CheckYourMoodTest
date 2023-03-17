@@ -29,7 +29,7 @@ class DataSource
     private $user;
     private $pass;
     private $charset;
-
+    private static $pdo;
     public function __construct($host, $port, $db, $user, $pass, $charset)
     {
         $this->host = $host;
@@ -38,19 +38,21 @@ class DataSource
         $this->user = $user;
         $this->pass = $pass;
         $this->charset = $charset;
+        if (static::$pdo == null) {
+            $dsn = "mysql:host=$this->host;port=$this->port;dbname=$this->db;charset=$this->charset";
+            $options = [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false,
+                PDO::ATTR_PERSISTENT => true
+            ];
+            static::$pdo = new PDO($dsn, $this->user, $this->pass, $options);
+        }
     }
 
-    public function getPDO()
+    public static function getPDO()
     {
-        $dsn = "mysql:host=$this->host;port=$this->port;dbname=$this->db;charset=$this->charset";
-        $options = [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false,
-            PDO::ATTR_PERSISTENT => true
-        ];
-        $pdo = new PDO($dsn, $this->user, $this->pass, $options);
-        return $pdo;
+        return static::$pdo;
     }
 
 }
