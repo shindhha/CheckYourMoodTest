@@ -9,24 +9,24 @@
  */
 namespace SebastianBergmann\CodeCoverage\Node;
 
+use function count;
+use RecursiveIterator;
+
 /**
- * Recursive iterator for node object graphs.
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
-final class Iterator implements \RecursiveIterator
+final class Iterator implements RecursiveIterator
 {
-    /**
-     * @var int
-     */
-    private $position;
+    private int $position;
 
     /**
-     * @var AbstractNode[]
+     * @var list<AbstractNode>
      */
-    private $nodes;
+    private readonly array $nodes;
 
     public function __construct(Directory $node)
     {
-        $this->nodes = $node->getChildNodes();
+        $this->nodes = $node->children();
     }
 
     /**
@@ -42,7 +42,7 @@ final class Iterator implements \RecursiveIterator
      */
     public function valid(): bool
     {
-        return $this->position < \count($this->nodes);
+        return $this->position < count($this->nodes);
     }
 
     /**
@@ -71,8 +71,6 @@ final class Iterator implements \RecursiveIterator
 
     /**
      * Returns the sub iterator for the current element.
-     *
-     * @return Iterator
      */
     public function getChildren(): self
     {

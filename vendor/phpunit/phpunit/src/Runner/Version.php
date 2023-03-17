@@ -9,19 +9,20 @@
  */
 namespace PHPUnit\Runner;
 
+use function array_slice;
+use function dirname;
+use function explode;
+use function implode;
+use function str_contains;
 use SebastianBergmann\Version as VersionId;
 
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
 final class Version
 {
-    /**
-     * @var string
-     */
-    private static $pharVersion = '';
-
-    /**
-     * @var string
-     */
-    private static $version = '';
+    private static string $pharVersion = '';
+    private static string $version     = '';
 
     /**
      * Returns the current version of PHPUnit.
@@ -33,7 +34,7 @@ final class Version
         }
 
         if (self::$version === '') {
-            self::$version = (new VersionId('9.0.0', \dirname(__DIR__, 2)))->getVersion();
+            self::$version = (new VersionId('10.0.16', dirname(__DIR__, 2)))->asString();
         }
 
         return self::$version;
@@ -41,13 +42,13 @@ final class Version
 
     public static function series(): string
     {
-        if (\strpos(self::id(), '-')) {
-            $version = \explode('-', self::id())[0];
+        if (str_contains(self::id(), '-')) {
+            $version = explode('-', self::id(), 2)[0];
         } else {
             $version = self::id();
         }
 
-        return \implode('.', \array_slice(\explode('.', $version), 0, 2));
+        return implode('.', array_slice(explode('.', $version), 0, 2));
     }
 
     public static function getVersionString(): string

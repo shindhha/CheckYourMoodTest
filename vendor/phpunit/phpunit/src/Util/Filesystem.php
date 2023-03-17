@@ -9,27 +9,16 @@
  */
 namespace PHPUnit\Util;
 
+use function is_dir;
+use function mkdir;
+
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class Filesystem
 {
-    /**
-     * Maps class names to source file names:
-     *   - PEAR CS:   Foo_Bar_Baz -> Foo/Bar/Baz.php
-     *   - Namespace: Foo\Bar\Baz -> Foo/Bar/Baz.php
-     */
-    public static function classNameToFilename(string $className): string
-    {
-        return \str_replace(
-            ['_', '\\'],
-            \DIRECTORY_SEPARATOR,
-            $className
-        ) . '.php';
-    }
-
     public static function createDirectory(string $directory): bool
     {
-        return !(!\is_dir($directory) && !@\mkdir($directory, 0777, true) && !\is_dir($directory));
+        return !(!is_dir($directory) && !@mkdir($directory, 0777, true) && !is_dir($directory));
     }
 }

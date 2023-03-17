@@ -9,6 +9,7 @@
  */
 namespace PHPUnit\Framework\MockObject\Stub;
 
+use function sprintf;
 use PHPUnit\Framework\MockObject\Invocation;
 use SebastianBergmann\Exporter\Exporter;
 
@@ -17,17 +18,14 @@ use SebastianBergmann\Exporter\Exporter;
  */
 final class ReturnStub implements Stub
 {
-    /**
-     * @var mixed
-     */
-    private $value;
+    private readonly mixed $value;
 
-    public function __construct($value)
+    public function __construct(mixed $value)
     {
         $this->value = $value;
     }
 
-    public function invoke(Invocation $invocation)
+    public function invoke(Invocation $invocation): mixed
     {
         return $this->value;
     }
@@ -36,7 +34,7 @@ final class ReturnStub implements Stub
     {
         $exporter = new Exporter;
 
-        return \sprintf(
+        return sprintf(
             'return user-specified value %s',
             $exporter->export($this->value)
         );

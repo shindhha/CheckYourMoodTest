@@ -9,355 +9,228 @@
  */
 namespace SebastianBergmann\CodeCoverage\Node;
 
-use SebastianBergmann\CodeCoverage\Percentage;
+use const DIRECTORY_SEPARATOR;
+use function array_merge;
+use function str_ends_with;
+use function str_replace;
+use function substr;
+use Countable;
+use SebastianBergmann\CodeCoverage\Util\Percentage;
 
 /**
- * Base class for nodes in the code coverage information tree.
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
-abstract class AbstractNode implements \Countable
+abstract class AbstractNode implements Countable
 {
-    /**
-     * @var string
-     */
-    private $name;
-
-    /**
-     * @var string
-     */
-    private $path;
-
-    /**
-     * @var array
-     */
-    private $pathArray;
-
-    /**
-     * @var AbstractNode
-     */
-    private $parent;
-
-    /**
-     * @var string
-     */
-    private $id;
+    private readonly string $name;
+    private string $pathAsString;
+    private array $pathAsArray;
+    private readonly ?AbstractNode $parent;
+    private string $id;
 
     public function __construct(string $name, self $parent = null)
     {
-        if (\substr($name, -1) == \DIRECTORY_SEPARATOR) {
-            $name = \substr($name, 0, -1);
+        if (str_ends_with($name, DIRECTORY_SEPARATOR)) {
+            $name = substr($name, 0, -1);
         }
 
         $this->name   = $name;
         $this->parent = $parent;
+
+        $this->processId();
+        $this->processPath();
     }
 
-    public function getName(): string
+    public function name(): string
     {
         return $this->name;
     }
 
-    public function getId(): string
+    public function id(): string
     {
-        if ($this->id === null) {
-            $parent = $this->getParent();
-
-            if ($parent === null) {
-                $this->id = 'index';
-            } else {
-                $parentId = $parent->getId();
-
-                if ($parentId === 'index') {
-                    $this->id = \str_replace(':', '_', $this->name);
-                } else {
-                    $this->id = $parentId . '/' . $this->name;
-                }
-            }
-        }
-
         return $this->id;
     }
 
-    public function getPath(): string
+    public function pathAsString(): string
     {
-        if ($this->path === null) {
-            if ($this->parent === null || $this->parent->getPath() === null || $this->parent->getPath() === false) {
-                $this->path = $this->name;
-            } else {
-                $this->path = $this->parent->getPath() . \DIRECTORY_SEPARATOR . $this->name;
-            }
-        }
-
-        return $this->path;
+        return $this->pathAsString;
     }
 
-    public function getPathAsArray(): array
+    public function pathAsArray(): array
     {
-        if ($this->pathArray === null) {
-            if ($this->parent === null) {
-                $this->pathArray = [];
-            } else {
-                $this->pathArray = $this->parent->getPathAsArray();
-            }
-
-            $this->pathArray[] = $this;
-        }
-
-        return $this->pathArray;
+        return $this->pathAsArray;
     }
 
-    public function getParent(): ?self
+    public function parent(): ?self
     {
         return $this->parent;
     }
 
-    /**
-     * Returns the percentage of classes that has been tested.
-     *
-     * @return int|string
-     */
-    public function getTestedClassesPercent(bool $asString = true)
+    public function percentageOfTestedClasses(): Percentage
     {
-        $percentage = Percentage::fromFractionAndTotal(
-            $this->getNumTestedClasses(),
-            $this->getNumClasses(),
+        return Percentage::fromFractionAndTotal(
+            $this->numberOfTestedClasses(),
+            $this->numberOfClasses(),
         );
+    }
 
-        if ($asString) {
-            return $percentage->asString();
+    public function percentageOfTestedTraits(): Percentage
+    {
+        return Percentage::fromFractionAndTotal(
+            $this->numberOfTestedTraits(),
+            $this->numberOfTraits(),
+        );
+    }
+
+    public function percentageOfTestedClassesAndTraits(): Percentage
+    {
+        return Percentage::fromFractionAndTotal(
+            $this->numberOfTestedClassesAndTraits(),
+            $this->numberOfClassesAndTraits(),
+        );
+    }
+
+    public function percentageOfTestedFunctions(): Percentage
+    {
+        return Percentage::fromFractionAndTotal(
+            $this->numberOfTestedFunctions(),
+            $this->numberOfFunctions(),
+        );
+    }
+
+    public function percentageOfTestedMethods(): Percentage
+    {
+        return Percentage::fromFractionAndTotal(
+            $this->numberOfTestedMethods(),
+            $this->numberOfMethods(),
+        );
+    }
+
+    public function percentageOfTestedFunctionsAndMethods(): Percentage
+    {
+        return Percentage::fromFractionAndTotal(
+            $this->numberOfTestedFunctionsAndMethods(),
+            $this->numberOfFunctionsAndMethods(),
+        );
+    }
+
+    public function percentageOfExecutedLines(): Percentage
+    {
+        return Percentage::fromFractionAndTotal(
+            $this->numberOfExecutedLines(),
+            $this->numberOfExecutableLines(),
+        );
+    }
+
+    public function percentageOfExecutedBranches(): Percentage
+    {
+        return Percentage::fromFractionAndTotal(
+            $this->numberOfExecutedBranches(),
+            $this->numberOfExecutableBranches()
+        );
+    }
+
+    public function percentageOfExecutedPaths(): Percentage
+    {
+        return Percentage::fromFractionAndTotal(
+            $this->numberOfExecutedPaths(),
+            $this->numberOfExecutablePaths()
+        );
+    }
+
+    public function numberOfClassesAndTraits(): int
+    {
+        return $this->numberOfClasses() + $this->numberOfTraits();
+    }
+
+    public function numberOfTestedClassesAndTraits(): int
+    {
+        return $this->numberOfTestedClasses() + $this->numberOfTestedTraits();
+    }
+
+    public function classesAndTraits(): array
+    {
+        return array_merge($this->classes(), $this->traits());
+    }
+
+    public function numberOfFunctionsAndMethods(): int
+    {
+        return $this->numberOfFunctions() + $this->numberOfMethods();
+    }
+
+    public function numberOfTestedFunctionsAndMethods(): int
+    {
+        return $this->numberOfTestedFunctions() + $this->numberOfTestedMethods();
+    }
+
+    abstract public function classes(): array;
+
+    abstract public function traits(): array;
+
+    abstract public function functions(): array;
+
+    /**
+     * @psalm-return array{linesOfCode: int, commentLinesOfCode: int, nonCommentLinesOfCode: int}
+     */
+    abstract public function linesOfCode(): array;
+
+    abstract public function numberOfExecutableLines(): int;
+
+    abstract public function numberOfExecutedLines(): int;
+
+    abstract public function numberOfExecutableBranches(): int;
+
+    abstract public function numberOfExecutedBranches(): int;
+
+    abstract public function numberOfExecutablePaths(): int;
+
+    abstract public function numberOfExecutedPaths(): int;
+
+    abstract public function numberOfClasses(): int;
+
+    abstract public function numberOfTestedClasses(): int;
+
+    abstract public function numberOfTraits(): int;
+
+    abstract public function numberOfTestedTraits(): int;
+
+    abstract public function numberOfMethods(): int;
+
+    abstract public function numberOfTestedMethods(): int;
+
+    abstract public function numberOfFunctions(): int;
+
+    abstract public function numberOfTestedFunctions(): int;
+
+    private function processId(): void
+    {
+        if ($this->parent === null) {
+            $this->id = 'index';
+
+            return;
         }
 
-        return $percentage->asFloat();
+        $parentId = $this->parent->id();
+
+        if ($parentId === 'index') {
+            $this->id = str_replace(':', '_', $this->name);
+        } else {
+            $this->id = $parentId . '/' . $this->name;
+        }
     }
 
-    /**
-     * Returns the percentage of traits that has been tested.
-     *
-     * @return int|string
-     */
-    public function getTestedTraitsPercent(bool $asString = true)
+    private function processPath(): void
     {
-        $percentage = Percentage::fromFractionAndTotal(
-            $this->getNumTestedTraits(),
-            $this->getNumTraits(),
-        );
+        if ($this->parent === null) {
+            $this->pathAsArray  = [$this];
+            $this->pathAsString = $this->name;
 
-        if ($asString) {
-            return $percentage->asString();
+            return;
         }
 
-        return $percentage->asFloat();
+        $this->pathAsArray  = $this->parent->pathAsArray();
+        $this->pathAsString = $this->parent->pathAsString() . DIRECTORY_SEPARATOR . $this->name;
+
+        $this->pathAsArray[] = $this;
     }
-
-    /**
-     * Returns the percentage of classes and traits that has been tested.
-     *
-     * @return int|string
-     */
-    public function getTestedClassesAndTraitsPercent(bool $asString = true)
-    {
-        $percentage = Percentage::fromFractionAndTotal(
-            $this->getNumTestedClassesAndTraits(),
-            $this->getNumClassesAndTraits(),
-        );
-
-        if ($asString) {
-            return $percentage->asString();
-        }
-
-        return $percentage->asFloat();
-    }
-
-    /**
-     * Returns the percentage of functions that has been tested.
-     *
-     * @return int|string
-     */
-    public function getTestedFunctionsPercent(bool $asString = true)
-    {
-        $percentage = Percentage::fromFractionAndTotal(
-            $this->getNumTestedFunctions(),
-            $this->getNumFunctions(),
-        );
-
-        if ($asString) {
-            return $percentage->asString();
-        }
-
-        return $percentage->asFloat();
-    }
-
-    /**
-     * Returns the percentage of methods that has been tested.
-     *
-     * @return int|string
-     */
-    public function getTestedMethodsPercent(bool $asString = true)
-    {
-        $percentage = Percentage::fromFractionAndTotal(
-            $this->getNumTestedMethods(),
-            $this->getNumMethods(),
-        );
-
-        if ($asString) {
-            return $percentage->asString();
-        }
-
-        return $percentage->asFloat();
-    }
-
-    /**
-     * Returns the percentage of functions and methods that has been tested.
-     *
-     * @return int|string
-     */
-    public function getTestedFunctionsAndMethodsPercent(bool $asString = true)
-    {
-        $percentage = Percentage::fromFractionAndTotal(
-            $this->getNumTestedFunctionsAndMethods(),
-            $this->getNumFunctionsAndMethods(),
-        );
-
-        if ($asString) {
-            return $percentage->asString();
-        }
-
-        return $percentage->asFloat();
-    }
-
-    /**
-     * Returns the percentage of executed lines.
-     *
-     * @return int|string
-     */
-    public function getLineExecutedPercent(bool $asString = true)
-    {
-        $percentage = Percentage::fromFractionAndTotal(
-            $this->getNumExecutedLines(),
-            $this->getNumExecutableLines(),
-        );
-
-        if ($asString) {
-            return $percentage->asString();
-        }
-
-        return $percentage->asFloat();
-    }
-
-    /**
-     * Returns the number of classes and traits.
-     */
-    public function getNumClassesAndTraits(): int
-    {
-        return $this->getNumClasses() + $this->getNumTraits();
-    }
-
-    /**
-     * Returns the number of tested classes and traits.
-     */
-    public function getNumTestedClassesAndTraits(): int
-    {
-        return $this->getNumTestedClasses() + $this->getNumTestedTraits();
-    }
-
-    /**
-     * Returns the classes and traits of this node.
-     */
-    public function getClassesAndTraits(): array
-    {
-        return \array_merge($this->getClasses(), $this->getTraits());
-    }
-
-    /**
-     * Returns the number of functions and methods.
-     */
-    public function getNumFunctionsAndMethods(): int
-    {
-        return $this->getNumFunctions() + $this->getNumMethods();
-    }
-
-    /**
-     * Returns the number of tested functions and methods.
-     */
-    public function getNumTestedFunctionsAndMethods(): int
-    {
-        return $this->getNumTestedFunctions() + $this->getNumTestedMethods();
-    }
-
-    /**
-     * Returns the functions and methods of this node.
-     */
-    public function getFunctionsAndMethods(): array
-    {
-        return \array_merge($this->getFunctions(), $this->getMethods());
-    }
-
-    /**
-     * Returns the classes of this node.
-     */
-    abstract public function getClasses(): array;
-
-    /**
-     * Returns the traits of this node.
-     */
-    abstract public function getTraits(): array;
-
-    /**
-     * Returns the functions of this node.
-     */
-    abstract public function getFunctions(): array;
-
-    /**
-     * Returns the LOC/CLOC/NCLOC of this node.
-     */
-    abstract public function getLinesOfCode(): array;
-
-    /**
-     * Returns the number of executable lines.
-     */
-    abstract public function getNumExecutableLines(): int;
-
-    /**
-     * Returns the number of executed lines.
-     */
-    abstract public function getNumExecutedLines(): int;
-
-    /**
-     * Returns the number of classes.
-     */
-    abstract public function getNumClasses(): int;
-
-    /**
-     * Returns the number of tested classes.
-     */
-    abstract public function getNumTestedClasses(): int;
-
-    /**
-     * Returns the number of traits.
-     */
-    abstract public function getNumTraits(): int;
-
-    /**
-     * Returns the number of tested traits.
-     */
-    abstract public function getNumTestedTraits(): int;
-
-    /**
-     * Returns the number of methods.
-     */
-    abstract public function getNumMethods(): int;
-
-    /**
-     * Returns the number of tested methods.
-     */
-    abstract public function getNumTestedMethods(): int;
-
-    /**
-     * Returns the number of functions.
-     */
-    abstract public function getNumFunctions(): int;
-
-    /**
-     * Returns the number of tested functions.
-     */
-    abstract public function getNumTestedFunctions(): int;
 }

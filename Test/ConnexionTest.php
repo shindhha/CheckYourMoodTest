@@ -1,12 +1,9 @@
 <?php 
 use PHPUnit\Framework\TestCase;
 use yasmf\DataSource;
-require_once 'yasmf\DataSource.php';
+require_once 'yasmf/datasource.php';
 use services\HomeService;
-require_once 'services/HomeService.php';
-
-use DataBase;
-require_once 'Test/DataBase.php';
+require_once 'services/homeservice.php';
 
 class ConnexionTest extends TestCase
 {

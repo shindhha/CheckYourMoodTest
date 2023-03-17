@@ -1,7 +1,7 @@
 <?php 
-require_once 'yasmf\DataSource.php';
-require_once 'services/DonneesService.php';
-require_once 'Test\DataBase.php';
+require_once 'yasmf/datasource.php';
+require_once 'services/donneesservice.php';
+require_once 'Test/DataBase.php';
 
 use services\DonneesService;
 use PHPUnit\Framework\TestCase;
@@ -41,7 +41,7 @@ class DonneesServiceTest extends TestCase
         // GIVEN Un utilisateur ayant saisie un nouveau mot de passe valide
         $idUtil = 1;
         $tabMotDePasse = [
-            'motDePasse' => 'TestMotDePasse'
+            'motDePasse' => md5('TestMotDePasse')
         ];
         // WHEN Il valide la modification de son mot de passe
         $result = $this->services->updateData($this->pdo, $tabMotDePasse, $idUtil);

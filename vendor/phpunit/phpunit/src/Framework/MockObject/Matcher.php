@@ -9,50 +9,30 @@
  */
 namespace PHPUnit\Framework\MockObject;
 
+use function assert;
+use function implode;
+use function sprintf;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\MockObject\Rule\AnyInvokedCount;
 use PHPUnit\Framework\MockObject\Rule\AnyParameters;
 use PHPUnit\Framework\MockObject\Rule\InvocationOrder;
+use PHPUnit\Framework\MockObject\Rule\InvokedAtMostCount;
 use PHPUnit\Framework\MockObject\Rule\InvokedCount;
 use PHPUnit\Framework\MockObject\Rule\MethodName;
 use PHPUnit\Framework\MockObject\Rule\ParametersRule;
 use PHPUnit\Framework\MockObject\Stub\Stub;
-use PHPUnit\Framework\TestFailure;
+use PHPUnit\Util\ThrowableToStringMapper;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class Matcher
 {
-    /**
-     * @var InvocationOrder
-     */
-    private $invocationRule;
-
-    /**
-     * @var mixed
-     */
-    private $afterMatchBuilderId;
-
-    /**
-     * @var bool
-     */
-    private $afterMatchBuilderIsInvoked = false;
-
-    /**
-     * @var MethodName
-     */
-    private $methodNameRule;
-
-    /**
-     * @var ParametersRule
-     */
-    private $parametersRule;
-
-    /**
-     * @var Stub
-     */
-    private $stub;
+    private readonly InvocationOrder $invocationRule;
+    private ?string $afterMatchBuilderId    = null;
+    private ?MethodName $methodNameRule     = null;
+    private ?ParametersRule $parametersRule = null;
+    private ?Stub $stub                     = null;
 
     public function __construct(InvocationOrder $rule)
     {
@@ -69,7 +49,7 @@ final class Matcher
         return $this->methodNameRule !== null;
     }
 
-    public function getMethodNameRule(): MethodName
+    public function methodNameRule(): MethodName
     {
         return $this->methodNameRule;
     }
@@ -100,45 +80,35 @@ final class Matcher
     }
 
     /**
-     * @throws \Exception
-     * @throws RuntimeException
+     * @throws Exception
      * @throws ExpectationFailedException
+     * @throws MatchBuilderNotFoundException
+     * @throws MethodNameNotConfiguredException
+     * @throws RuntimeException
      */
-    public function invoked(Invocation $invocation)
+    public function invoked(Invocation $invocation): mixed
     {
         if ($this->methodNameRule === null) {
-            throw new RuntimeException('No method rule is set');
+            throw new MethodNameNotConfiguredException;
         }
 
         if ($this->afterMatchBuilderId !== null) {
-            $matcher = $invocation->getObject()
+            $matcher = $invocation->object()
                                   ->__phpunit_getInvocationHandler()
                                   ->lookupMatcher($this->afterMatchBuilderId);
 
             if (!$matcher) {
-                throw new RuntimeException(
-                    \sprintf(
-                        'No builder found for match builder identification <%s>',
-                        $this->afterMatchBuilderId
-                    )
-                );
-            }
-            \assert($matcher instanceof self);
-
-            if ($matcher->invocationRule->hasBeenInvoked()) {
-                $this->afterMatchBuilderIsInvoked = true;
+                throw new MatchBuilderNotFoundException($this->afterMatchBuilderId);
             }
         }
 
         $this->invocationRule->invoked($invocation);
 
         try {
-            if ($this->parametersRule !== null) {
-                $this->parametersRule->apply($invocation);
-            }
+            $this->parametersRule?->apply($invocation);
         } catch (ExpectationFailedException $e) {
             throw new ExpectationFailedException(
-                \sprintf(
+                sprintf(
                     "Expectation failed for %s when %s\n%s",
                     $this->methodNameRule->toString(),
                     $this->invocationRule->toString(),
@@ -156,26 +126,23 @@ final class Matcher
     }
 
     /**
-     * @throws RuntimeException
      * @throws ExpectationFailedException
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     * @throws MatchBuilderNotFoundException
+     * @throws MethodNameNotConfiguredException
+     * @throws RuntimeException
      */
     public function matches(Invocation $invocation): bool
     {
         if ($this->afterMatchBuilderId !== null) {
-            $matcher = $invocation->getObject()
+            $matcher = $invocation->object()
                                   ->__phpunit_getInvocationHandler()
                                   ->lookupMatcher($this->afterMatchBuilderId);
 
             if (!$matcher) {
-                throw new RuntimeException(
-                    \sprintf(
-                        'No builder found for match builder identification <%s>',
-                        $this->afterMatchBuilderId
-                    )
-                );
+                throw new MatchBuilderNotFoundException($this->afterMatchBuilderId);
             }
-            \assert($matcher instanceof self);
+
+            assert($matcher instanceof self);
 
             if (!$matcher->invocationRule->hasBeenInvoked()) {
                 return false;
@@ -183,7 +150,7 @@ final class Matcher
         }
 
         if ($this->methodNameRule === null) {
-            throw new RuntimeException('No method rule is set');
+            throw new MethodNameNotConfiguredException;
         }
 
         if (!$this->invocationRule->matches($invocation)) {
@@ -196,7 +163,7 @@ final class Matcher
             }
         } catch (ExpectationFailedException $e) {
             throw new ExpectationFailedException(
-                \sprintf(
+                sprintf(
                     "Expectation failed for %s when %s\n%s",
                     $this->methodNameRule->toString(),
                     $this->invocationRule->toString(),
@@ -210,14 +177,13 @@ final class Matcher
     }
 
     /**
-     * @throws RuntimeException
      * @throws ExpectationFailedException
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     * @throws MethodNameNotConfiguredException
      */
     public function verify(): void
     {
         if ($this->methodNameRule === null) {
-            throw new RuntimeException('No method rule is set');
+            throw new MethodNameNotConfiguredException;
         }
 
         try {
@@ -227,19 +193,20 @@ final class Matcher
                 $this->parametersRule = new AnyParameters;
             }
 
-            $invocationIsAny   = $this->invocationRule instanceof AnyInvokedCount;
-            $invocationIsNever = $this->invocationRule instanceof InvokedCount && $this->invocationRule->isNever();
+            $invocationIsAny    = $this->invocationRule instanceof AnyInvokedCount;
+            $invocationIsNever  = $this->invocationRule instanceof InvokedCount && $this->invocationRule->isNever();
+            $invocationIsAtMost = $this->invocationRule instanceof InvokedAtMostCount;
 
-            if (!$invocationIsAny && !$invocationIsNever) {
+            if (!$invocationIsAny && !$invocationIsNever && !$invocationIsAtMost) {
                 $this->parametersRule->verify();
             }
         } catch (ExpectationFailedException $e) {
             throw new ExpectationFailedException(
-                \sprintf(
+                sprintf(
                     "Expectation failed for %s when %s.\n%s",
                     $this->methodNameRule->toString(),
                     $this->invocationRule->toString(),
-                    TestFailure::exceptionToString($e)
+                    ThrowableToStringMapper::map($e)
                 )
             );
         }
@@ -247,11 +214,7 @@ final class Matcher
 
     public function toString(): string
     {
-        $list = [];
-
-        if ($this->invocationRule !== null) {
-            $list[] = $this->invocationRule->toString();
-        }
+        $list = [$this->invocationRule->toString()];
 
         if ($this->methodNameRule !== null) {
             $list[] = 'where ' . $this->methodNameRule->toString();
@@ -269,6 +232,6 @@ final class Matcher
             $list[] = 'will ' . $this->stub->toString();
         }
 
-        return \implode(' ', $list);
+        return implode(' ', $list);
     }
 }

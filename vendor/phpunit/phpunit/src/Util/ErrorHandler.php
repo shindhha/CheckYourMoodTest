@@ -9,137 +9,174 @@
  */
 namespace PHPUnit\Util;
 
-use PHPUnit\Framework\Error\Deprecated;
-use PHPUnit\Framework\Error\Error;
-use PHPUnit\Framework\Error\Notice;
-use PHPUnit\Framework\Error\Warning;
+use const E_DEPRECATED;
+use const E_NOTICE;
+use const E_STRICT;
+use const E_USER_DEPRECATED;
+use const E_USER_NOTICE;
+use const E_USER_WARNING;
+use const E_WARNING;
+use function debug_backtrace;
+use function error_reporting;
+use function in_array;
+use function restore_error_handler;
+use function set_error_handler;
+use PHPUnit\Event;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class ErrorHandler
 {
-    /**
-     * @var bool
-     */
-    private $convertDeprecationsToExceptions;
+    private static ?self $instance = null;
+    private bool $enabled          = false;
 
-    /**
-     * @var bool
-     */
-    private $convertErrorsToExceptions;
-
-    /**
-     * @var bool
-     */
-    private $convertNoticesToExceptions;
-
-    /**
-     * @var bool
-     */
-    private $convertWarningsToExceptions;
-
-    /**
-     * @var bool
-     */
-    private $registered = false;
-
-    public static function invokeIgnoringWarnings(callable $callable)
+    public static function instance(): self
     {
-        \set_error_handler(
-            static function ($errorNumber, $errorString) {
-                if ($errorNumber === \E_WARNING) {
-                    return;
-                }
-
-                return false;
-            }
-        );
-
-        $result = $callable();
-
-        \restore_error_handler();
-
-        return $result;
+        return self::$instance ?? self::$instance = new self;
     }
 
-    public function __construct(bool $convertDeprecationsToExceptions, bool $convertErrorsToExceptions, bool $convertNoticesToExceptions, bool $convertWarningsToExceptions)
-    {
-        $this->convertDeprecationsToExceptions = $convertDeprecationsToExceptions;
-        $this->convertErrorsToExceptions       = $convertErrorsToExceptions;
-        $this->convertNoticesToExceptions      = $convertNoticesToExceptions;
-        $this->convertWarningsToExceptions     = $convertWarningsToExceptions;
-    }
-
+    /**
+     * @throws Exception
+     */
     public function __invoke(int $errorNumber, string $errorString, string $errorFile, int $errorLine): bool
     {
-        /*
-         * Do not raise an exception when the error suppression operator (@) was used.
-         *
-         * @see https://github.com/sebastianbergmann/phpunit/issues/3739
-         */
-        if (!($errorNumber & \error_reporting())) {
+        $suppressed = !($errorNumber & error_reporting());
+
+        if ($suppressed &&
+            in_array($errorNumber, [E_DEPRECATED, E_NOTICE, E_STRICT, E_WARNING], true)) {
             return false;
         }
 
         switch ($errorNumber) {
-            case \E_NOTICE:
-            case \E_USER_NOTICE:
-            case \E_STRICT:
-                if (!$this->convertNoticesToExceptions) {
-                    return false;
-                }
+            case E_NOTICE:
+            case E_STRICT:
+                Event\Facade::emitter()->testTriggeredPhpNotice(
+                    $this->testValueObjectForEvents(),
+                    $errorString,
+                    $errorFile,
+                    $errorLine
+                );
 
-                throw new Notice($errorString, $errorNumber, $errorFile, $errorLine);
+                return true;
 
-            case \E_WARNING:
-            case \E_USER_WARNING:
-                if (!$this->convertWarningsToExceptions) {
-                    return false;
-                }
+            case E_USER_NOTICE:
+                Event\Facade::emitter()->testTriggeredNotice(
+                    $this->testValueObjectForEvents(),
+                    $errorString,
+                    $errorFile,
+                    $errorLine
+                );
 
-                throw new Warning($errorString, $errorNumber, $errorFile, $errorLine);
+                break;
 
-            case \E_DEPRECATED:
-            case \E_USER_DEPRECATED:
-                if (!$this->convertDeprecationsToExceptions) {
-                    return false;
-                }
+            case E_WARNING:
+                Event\Facade::emitter()->testTriggeredPhpWarning(
+                    $this->testValueObjectForEvents(),
+                    $errorString,
+                    $errorFile,
+                    $errorLine
+                );
 
-                throw new Deprecated($errorString, $errorNumber, $errorFile, $errorLine);
+                break;
+
+            case E_USER_WARNING:
+                Event\Facade::emitter()->testTriggeredWarning(
+                    $this->testValueObjectForEvents(),
+                    $errorString,
+                    $errorFile,
+                    $errorLine
+                );
+
+                break;
+
+            case E_DEPRECATED:
+                Event\Facade::emitter()->testTriggeredPhpDeprecation(
+                    $this->testValueObjectForEvents(),
+                    $errorString,
+                    $errorFile,
+                    $errorLine
+                );
+
+                break;
+
+            case E_USER_DEPRECATED:
+                Event\Facade::emitter()->testTriggeredDeprecation(
+                    $this->testValueObjectForEvents(),
+                    $errorString,
+                    $errorFile,
+                    $errorLine
+                );
+
+                break;
+
+            case E_USER_ERROR:
+                Event\Facade::emitter()->testTriggeredError(
+                    $this->testValueObjectForEvents(),
+                    $errorString,
+                    $errorFile,
+                    $errorLine
+                );
+
+                break;
 
             default:
-                if (!$this->convertErrorsToExceptions) {
-                    return false;
-                }
-
-                throw new Error($errorString, $errorNumber, $errorFile, $errorLine);
+                // @codeCoverageIgnoreStart
+                return false;
+                // @codeCoverageIgnoreEnd
         }
+
+        return true;
     }
 
-    public function register(): void
+    public function enable(): void
     {
-        if ($this->registered) {
+        if ($this->enabled) {
+            // @codeCoverageIgnoreStart
             return;
+            // @codeCoverageIgnoreEnd
         }
 
-        $oldErrorHandler = \set_error_handler($this);
+        $oldErrorHandler = set_error_handler($this);
 
         if ($oldErrorHandler !== null) {
-            \restore_error_handler();
+            // @codeCoverageIgnoreStart
+            restore_error_handler();
 
             return;
+            // @codeCoverageIgnoreEnd
         }
 
-        $this->registered = true;
+        $this->enabled = true;
     }
 
-    public function unregister(): void
+    public function disable(): void
     {
-        if (!$this->registered) {
+        if (!$this->enabled) {
+            // @codeCoverageIgnoreStart
             return;
+            // @codeCoverageIgnoreEnd
         }
 
-        \restore_error_handler();
+        restore_error_handler();
+
+        $this->enabled = false;
+    }
+
+    /**
+     * @throws NoTestCaseObjectOnCallStackException
+     */
+    private function testValueObjectForEvents(): Event\Code\Test
+    {
+        foreach (debug_backtrace() as $frame) {
+            if (isset($frame['object']) && $frame['object'] instanceof TestCase) {
+                return $frame['object']->valueObjectForEvents();
+            }
+        }
+
+        // @codeCoverageIgnoreStart
+        throw new NoTestCaseObjectOnCallStackException;
+        // @codeCoverageIgnoreEnd
     }
 }

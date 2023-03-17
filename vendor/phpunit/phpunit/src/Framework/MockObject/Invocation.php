@@ -9,49 +9,36 @@
  */
 namespace PHPUnit\Framework\MockObject;
 
+use function array_map;
+use function explode;
+use function implode;
+use function in_array;
+use function interface_exists;
+use function is_object;
+use function sprintf;
+use function str_contains;
+use function str_starts_with;
+use function strtolower;
+use function substr;
 use PHPUnit\Framework\SelfDescribing;
-use PHPUnit\Util\Type;
+use PHPUnit\Util\Cloner;
+use ReflectionClass;
 use SebastianBergmann\Exporter\Exporter;
+use stdClass;
+use Throwable;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class Invocation implements SelfDescribing
 {
-    /**
-     * @var string
-     */
-    private $className;
-
-    /**
-     * @var string
-     */
-    private $methodName;
-
-    /**
-     * @var array
-     */
-    private $parameters;
-
-    /**
-     * @var string
-     */
-    private $returnType;
-
-    /**
-     * @var bool
-     */
-    private $isReturnTypeNullable = false;
-
-    /**
-     * @var bool
-     */
-    private $proxiedCall;
-
-    /**
-     * @var object
-     */
-    private $object;
+    private readonly string $className;
+    private readonly string $methodName;
+    private array $parameters;
+    private readonly string $returnType;
+    private bool $isReturnTypeNullable = false;
+    private readonly bool $proxiedCall;
+    private readonly object $object;
 
     public function __construct(string $className, string $methodName, array $parameters, string $returnType, object $object, bool $cloneObjects = false, bool $proxiedCall = false)
     {
@@ -61,14 +48,12 @@ final class Invocation implements SelfDescribing
         $this->object      = $object;
         $this->proxiedCall = $proxiedCall;
 
-        $returnType = \ltrim($returnType, ': ');
-
-        if (\strtolower($methodName) === '__tostring') {
+        if (strtolower($methodName) === '__tostring') {
             $returnType = 'string';
         }
 
-        if (\strpos($returnType, '?') === 0) {
-            $returnType                 = \substr($returnType, 1);
+        if (str_starts_with($returnType, '?')) {
+            $returnType                 = substr($returnType, 1);
             $this->isReturnTypeNullable = true;
         }
 
@@ -79,112 +64,211 @@ final class Invocation implements SelfDescribing
         }
 
         foreach ($this->parameters as $key => $value) {
-            if (\is_object($value)) {
-                $this->parameters[$key] = $this->cloneObject($value);
+            if (is_object($value)) {
+                $this->parameters[$key] = Cloner::clone($value);
             }
         }
     }
 
-    public function getClassName(): string
+    public function className(): string
     {
         return $this->className;
     }
 
-    public function getMethodName(): string
+    public function methodName(): string
     {
         return $this->methodName;
     }
 
-    public function getParameters(): array
+    public function parameters(): array
     {
         return $this->parameters;
     }
 
     /**
-     * @throws RuntimeException
-     *
-     * @return mixed Mocked return value
+     * @throws Exception
      */
-    public function generateReturnValue()
+    public function generateReturnValue(): mixed
     {
         if ($this->isReturnTypeNullable || $this->proxiedCall) {
-            return;
+            return null;
         }
 
-        switch (\strtolower($this->returnType)) {
-            case '':
-            case 'void':
-                return;
+        $intersection               = false;
+        $union                      = false;
+        $unionContainsIntersections = false;
 
-            case 'string':
-                return '';
+        if (str_contains($this->returnType, '|')) {
+            $types = explode('|', $this->returnType);
+            $union = true;
 
-            case 'float':
-                return 0.0;
+            if (str_contains($this->returnType, '(')) {
+                $unionContainsIntersections = true;
+            }
+        } elseif (str_contains($this->returnType, '&')) {
+            $types        = explode('&', $this->returnType);
+            $intersection = true;
+        } else {
+            $types = [$this->returnType];
+        }
 
-            case 'int':
-                return 0;
+        $types = array_map('strtolower', $types);
 
-            case 'bool':
+        if (!$intersection && !$unionContainsIntersections) {
+            if (in_array('', $types, true) ||
+                in_array('null', $types, true) ||
+                in_array('mixed', $types, true) ||
+                in_array('void', $types, true)) {
+                return null;
+            }
+
+            if (in_array('true', $types, true)) {
+                return true;
+            }
+
+            if (in_array('false', $types, true) ||
+                in_array('bool', $types, true)) {
                 return false;
+            }
 
-            case 'array':
+            if (in_array('float', $types, true)) {
+                return 0.0;
+            }
+
+            if (in_array('int', $types, true)) {
+                return 0;
+            }
+
+            if (in_array('string', $types, true)) {
+                return '';
+            }
+
+            if (in_array('array', $types, true)) {
                 return [];
+            }
 
-            case 'object':
-                return new \stdClass;
+            if (in_array('static', $types, true)) {
+                try {
+                    return (new ReflectionClass($this->object::class))->newInstanceWithoutConstructor();
+                    // @codeCoverageIgnoreStart
+                } catch (\ReflectionException $e) {
+                    throw new ReflectionException(
+                        $e->getMessage(),
+                        $e->getCode(),
+                        $e
+                    );
+                }
+                // @codeCoverageIgnoreEnd
+            }
 
-            case 'callable':
-            case 'closure':
-                return function (): void {
+            if (in_array('object', $types, true)) {
+                return new stdClass;
+            }
+
+            if (in_array('callable', $types, true) ||
+                in_array('closure', $types, true)) {
+                return static function (): void
+                {
                 };
+            }
 
-            case 'traversable':
-            case 'generator':
-            case 'iterable':
-                $generator = static function () {
-                    yield;
+            if (in_array('traversable', $types, true) ||
+                in_array('generator', $types, true) ||
+                in_array('iterable', $types, true)) {
+                $generator = static function (): \Generator
+                {
+                    yield from [];
                 };
 
                 return $generator();
+            }
 
-            default:
-                $generator = new Generator;
+            if (!$union) {
+                try {
+                    return (new Generator)->getMock($this->returnType, [], [], '', false);
+                } catch (Throwable $t) {
+                    if ($t instanceof Exception) {
+                        throw $t;
+                    }
 
-                return $generator->getMock($this->returnType, [], [], '', false);
+                    throw new RuntimeException(
+                        $t->getMessage(),
+                        (int) $t->getCode(),
+                        $t
+                    );
+                }
+            }
         }
+
+        if ($intersection && $this->onlyInterfaces($types)) {
+            try {
+                return (new Generator)->getMockForInterfaces($types);
+            } catch (Throwable $t) {
+                throw new RuntimeException(
+                    sprintf(
+                        'Return value for %s::%s() cannot be generated: %s',
+                        $this->className,
+                        $this->methodName,
+                        $t->getMessage(),
+                    ),
+                    (int) $t->getCode(),
+                );
+            }
+        }
+
+        $reason = '';
+
+        if ($union) {
+            $reason = ' because the declared return type is a union';
+        } elseif ($intersection) {
+            $reason = ' because the declared return type is an intersection';
+        }
+
+        throw new RuntimeException(
+            sprintf(
+                'Return value for %s::%s() cannot be generated%s, please configure a return value for this method',
+                $this->className,
+                $this->methodName,
+                $reason
+            )
+        );
     }
 
     public function toString(): string
     {
         $exporter = new Exporter;
 
-        return \sprintf(
+        return sprintf(
             '%s::%s(%s)%s',
             $this->className,
             $this->methodName,
-            \implode(
+            implode(
                 ', ',
-                \array_map(
+                array_map(
                     [$exporter, 'shortenedExport'],
                     $this->parameters
                 )
             ),
-            $this->returnType ? \sprintf(': %s', $this->returnType) : ''
+            $this->returnType ? sprintf(': %s', $this->returnType) : ''
         );
     }
 
-    public function getObject(): object
+    public function object(): object
     {
         return $this->object;
     }
 
-    private function cloneObject(object $original): object
+    /**
+     * @psalm-param non-empty-list<string> $types
+     */
+    private function onlyInterfaces(array $types): bool
     {
-        if (Type::isCloneable($original)) {
-            return clone $original;
+        foreach ($types as $type) {
+            if (!interface_exists($type)) {
+                return false;
+            }
         }
 
-        return $original;
+        return true;
     }
 }
