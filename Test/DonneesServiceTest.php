@@ -19,6 +19,12 @@ class DonneesServiceTest extends TestCase
     {
         $this->services = DonneesService::getDefaultDonneesService();
         $this->pdo =  DataBase::getPDOTest();
+        $this->pdo->beginTransaction();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->pdo->rollBack();
     }
 
     public function getDataSet() {
@@ -40,124 +46,117 @@ class DonneesServiceTest extends TestCase
 
         // GIVEN Un utilisateur ayant saisie un nouveau mot de passe valide
         $idUtil = 1;
-        $tabMotDePasse = [
+        $newMotDePasse = [
             'motDePasse' => md5('TestMotDePasse')
         ];
         // WHEN Il valide la modification de son mot de passe
-        $result = $this->services->updateData($this->pdo, $tabMotDePasse, $idUtil);
+        $result = $this->services->updateData($this->pdo, $newMotDePasse, $idUtil);
         // THEN Son mot de passe et mis a jour dans la base de données après avoir été cryptées en md5
         $motDePasseModifier = $this->pdo->query("SELECT motDePasse FROM utilisateur WHERE codeUtil = 1");
-        $motDePasseModifier = $motDePasseModifier->fetchAll();
+        $motDePasseModifier = $motDePasseModifier->fetch();
         assertTrue($result);
-        assertEquals(md5('TestMotDePasse'),$motDePasseModifier[0]['motDePasse']);
+        assertEquals(md5('TestMotDePasse'),$motDePasseModifier['motDePasse']);
+
+
         // GIVEN Un utilisateur ayant saisie un nouvel identifiant valide
+        $idUtil = 1;
+        $newIdentifiant = [
+            'identifiant' => 'guillaume'
+        ];
         // WHEN Il valide la modification de son identifiant
+        $result = $this->services->updateData($this->pdo, $newIdentifiant, $idUtil);
         // THEN Son identifiant et mis à jour dans la base de données
+        $identifiantModifier = $this->pdo->query("SELECT identifiant FROM utilisateur WHERE codeUtil = 1");
+        $identifiantModifier = $identifiantModifier->fetch();
+        assertTrue($result);
+        assertEquals('guillaume',$identifiantModifier['identifiant']);
 
         // GIVEN Un utilisateur ayant saisie plusieur nouvelles informations valides a propos de son compte
-        // WHEN Il valide la modification de ses informations
-        // THEN L'enssemble de ces informations sont mis à jour dans la base de données.
-
-        /* -------------------------- ANCIEN TEST -------------------------- */
-        /*
-        $tab = [  
-            'nom' => 'Blanchard',
-            'prenom' => 'Jules22b',
-            'mail' => 'jules.blanchard@iut-rodez.fr',
-
-            
+        $idUtil = 1;
+        $newInfos = [
+            'identifiant' => 'guillaume',
+            'mail' => 'guillaume.medard@iut-rodez.fr',
+            'motDePasse' => md5('TestMotDePasse')
         ];
-        $util = 1;
-        $expectedResult = true;
-            
-        
-        // Appelez la méthode à tester avec les données de test
-        $result = $this->services->updateData($pdo, $tab, $util);
+        // WHEN Il valide la modification de ses informations
+        $result = $this->services->updateData($this->pdo, $newInfos, $idUtil);
 
-        // Assurez-vous que les résultats de la méthode sont ceux que vous attendez
-        $this->assertEquals($expectedResult, $result);
-        */
+        // THEN L'enssemble de ces informations sont mis à jour dans la base de données.
+        $infosModifier = $this->pdo->query("SELECT * FROM utilisateur WHERE codeUtil = 1");
+        $infosModifier = $infosModifier->fetch();
+        assertTrue($result);
+        assertEquals('guillaume',$infosModifier['identifiant']);
+        assertEquals('guillaume.medard@iut-rodez.fr',$infosModifier['mail']);
+        assertEquals(md5('TestMotDePasse'),$infosModifier['motDePasse']);
 
     }
     public function testsUpdateFaillure()
     {
-        // Préparez les données de test
-        $pdo = DataBase::getPDOTest();
-        $services = DonneesService::getDefaultDonneesService();
-        $tab = [  
+        // GIVEN Un utilisateur ayant entrer des nouvelles valeurs vides
+        $idUtil = 1;
+        $emptyNewValues = [
             'nom' => "",
             'prenom' => "",
             'mail' => "",
         ];
-        $util = 1;
-        $expectedResult = false;
-
-        // Appelez la méthode à tester avec les données de test
-        $result = $services->updateData($pdo, $tab, $util);
-
-        // Assurez-vous que les résultats de la méthode sont ceux que vous attendez
-        $this->assertEquals($expectedResult, $result);
-
+        // WHEN Il valide la modification de ces informations
+        $result = $this->services->updateData($this->pdo, $emptyNewValues, $idUtil);
+        // THEN Les valeurs de la base de données ne sont pas modifier
+        $infosParDefauts = $this->pdo->query("SELECT * FROM utilisateur WHERE codeUtil = 1");
+        $infosParDefauts = $infosParDefauts->fetch();
+        self::assertFalse($result);
+        assertEquals('Blanchard',$infosParDefauts['nom']);
+        assertEquals('Jules22b',$infosParDefauts['prenom']);
+        assertEquals('jules.blanchard@iut-rodez.fr',$infosParDefauts['mail']);
     }
 
     public function testsDonneesUserSuccess()
     {
-        $pdo = DataBase::getPDOTest();
-        $services = DonneesService::getDefaultDonneesService();
-        $nomAttendu = "Blanchard";
-        $prenomAttendu = "Jules22b";
-        $idUtil =1;
+        // GIVEN Un utilisateur enregistré dans la base de données
+        $idUtil = 1;
+        $user = [
+            'prenom' => 'Jules22b',
+            'nom' => 'Blanchard',
+            'identifiant' => 'jules22b',
+            'mail' => 'jules.blanchard@iut-rodez.fr',
+        ];
+        // EXCEPTED On récupère un pdo statement qui contient ses données
+        $result = $this->services->donneesUser($this->pdo,$idUtil);
+        $this->assertEquals($result->fetch(),$user);
 
-        $result = $services->donneesUser($pdo,$idUtil);
-
-        $this->assertEquals($result->fetch()['prenom'],$prenomAttendu);
-
-    }
-    public function testDonnesUserSuccess()
-    {
-        $pdo = DataBase::getPDOTest();
-        $services = DonneesService::getDefaultDonneesService();
-        $idUtil = 2 ; // utilisateur inexistant
-        
-        $result = $services->donneesUser($pdo,$idUtil);
-
-        $this->assertEquals($result->rowCount(),0);
     }
 
     // Ce test n'est pas passé ( Cause appel du Trigger pour modifier le contexte sous 24h)
-    public function testUpdateHumeurSuccess(){
-        // Préparez les données de test
-        $pdo = DataBase::getPDOTest();
-        $services = DonneesService::getDefaultDonneesService();
+    public function testUpdateHumeurSuccess() {
+
+
+        // GIVEN Une description valide pour une humeur déjà enregistrer
         $tab = [
               'id' => 1,
               'codeHumeur' => 3002,
               'contexte' => "Jadore cette journée"
         ];
-        $expectedResult = true;
-        // Appelez la méthode à tester avec les données de test
-        $result = $services->updateHumeur($pdo, $tab);
-  
-        // Assurez-vous que les résultats de la méthode sont ceux que vous attendez
-        $this->assertEquals($expectedResult, $result);
+        // WHEN On valide les changements
+        $result = $this->services->updateHumeur($this->pdo, $tab);
+        // THEN La nouvelle description est enregistrer dans la base de données
+        $this->assertTrue($result);
+        $humeurModifier = $this->pdo->query("SELECT contexte FROM humeur WHERE codeHumeur = 3002 AND idUtil = 1");
+        $humeurModifier = $humeurModifier->fetch();
+        assertEquals($tab['contexte'],$humeurModifier['contexte']);
     }
 
     public function testUpdateHumeurFailure()
     {
-        // Préparez les données de test
-        $pdo = DataBase::getPDOTest();
-        $services = DonneesService::getDefaultDonneesService();
+        /* TODO  - Guillaume -> J'ai pas compris pourquoi sa devait échouer */
+
         $tab = [
             'id' => 1,
             'codeHumeur' => 56,
-            'contexte' => 'Happy'
+            'contexte' => "Happy"
         ];
         $expectedResult = false;
-
-       
-
         // Appelez la méthode à tester avec les données de test
-        $result = $services->updateHumeur($pdo, $tab);
+        $result = $this->services->updateHumeur($this->pdo, $tab);
 
         // Assurez-vous que les résultats de la méthode sont ceux que vous attendez
         $this->assertEquals($expectedResult, $result);
@@ -165,14 +164,10 @@ class DonneesServiceTest extends TestCase
 
     public function testNombreHumeur()
     {
-        
-        $pdo = DataBase::getPDOTest();
+        /* TODO testNombreHumeur */
         $idUtil = 1 ;
-        $services = DonneesService::getDefaultDonneesService();
         // Appeler la fonction à tester
-        $result = $services->nombreHumeur($pdo, $idUtil);
-       
-
+        $result = $this->services->nombreHumeur($this->pdo, $idUtil);
         // Assertion pour vérifier le résultat attendu
         $this->assertTrue($result->fetchColumn()>= 200);
     }
