@@ -122,7 +122,9 @@ class DonneesService
      */
     public function viewMoodsPagination($pdo, $idUtil, $premier, $parPage)
     {
-        $sql = "SELECT h.codeHumeur, h.dateHumeur, h.heure, h.contexte, l.libelleHumeur, l.emoji, h.idUtil FROM humeur h, libelle l WHERE h.libelle = l.codeLibelle AND idUtil = :id ORDER BY h.dateHumeur DESC, h.heure DESC LIMIT :premier, :parpage;";
+        $sql = "SELECT h.codeHumeur, h.dateHumeur, h.heure, h.contexte, l.libelleHumeur, l.emoji, h.idUtil 
+                FROM humeur h, libelle l 
+                WHERE h.libelle = l.codeLibelle AND idUtil = :id ORDER BY h.dateHumeur DESC, h.heure DESC LIMIT :premier, :parpage";
         $searchStmt = $pdo->prepare($sql);
         $searchStmt->bindParam('id', $idUtil);
         $searchStmt->bindParam('premier', $premier);
@@ -161,16 +163,18 @@ class DonneesService
         $searchStmt->bindParam('id', $idUtil);
         $nvMDP = md5($nouveauMDP);
         $searchStmt->bindParam('nouveauMDP', $nvMDP);
-        $searchStmt->execute();
-        return $searchStmt;
+        try {
+            $searchStmt->execute();
+            return true;
+        } catch (PDOException $e) {
+            return false;
+        }
     }
 
 	public function supprimerCompte($pdo,$idUtil)
    {
 	   try{
-		   
 			$pdo->beginTransaction();
-		   
 			$sql = "DELETE FROM humeur WHERE  idUtil = :id";
 			$searchStmt = $pdo->prepare($sql);
 			$searchStmt->bindParam('id',$idUtil);
@@ -179,8 +183,6 @@ class DonneesService
 			$searchStmt = $pdo->prepare($sql);
 			$searchStmt->bindParam('id',$idUtil);
 			$searchStmt->execute();
-			
-			
 			$pdo->commit();
 			return "ok";
 			
@@ -188,13 +190,7 @@ class DonneesService
 		   $pdo->rollBack();
 		   return "nOk";
 	   }
-	   
-	   
-	   
-
    }
-
-
     private static $defaultDonneesService ;
     public static function getDefaultDonneesService()
     {

@@ -174,74 +174,50 @@ class DonneesServiceTest extends TestCase
     
     public function testUpdateMdp()
     {
-        // Prépare les données de test (exemple : insérer un utilisateur avec un mot de passe dans la base de données)
+        // GIVEN Un utilisateur ayant saisie un nouveau mot de passe valide
         $idUtil = 1;
         $nouveauMDP = "root2022";
-        $nvMDP = md5($nouveauMDP);
-        $pdo = DataBase::getPDOTest();
-    
-        
-        $services = DonneesService::getDefaultDonneesService();
-        // Appele la fonction à tester
-        $result = $services->updateMDP($pdo, $idUtil, $nouveauMDP);
-
-        // Vérifie que le mot de passe a été mis à jour dans la base de données
-        $sql = "SELECT motDePasse FROM utilisateur WHERE codeUtil = :id";
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':id', $idUtil);
-        $stmt->execute();
-        $password = $stmt->fetchColumn();
-        $this->assertEquals($nvMDP, $password);
+        $exceptedMDP = md5($nouveauMDP);
+        // WHEN On valide l'enregistrement du nouveau mot de passe
+        $result = $this->services->updateMDP($this->pdo, $idUtil, $nouveauMDP);
+        // THEN Le mot de passe est crypté en md5 puis enregistrer dans la base de données
+        $content = $this->pdo->query("SELECT motDePasse FROM utilisateur WHERE codeUtil = " . $idUtil);
+        $mdpModifier = $content->fetchColumn();
+        assertTrue($result);
+        $this->assertEquals($exceptedMDP, $mdpModifier);
     }
 
     public function testUpdateMDPFail()
     {
-        // Prépare les données de test (exemple : utiliser un id utilisateur qui n'existe pas dans la base de données)
+        // GIVEN Un utilisateur n'etant pas enregistrer dans la base de données
+        // n'ayant donc pas de mot de passe
         $idUtil = 999;
         $nouveauMDP = "password";
-       
-        $pdo = DataBase::getPDOTest();
-        // Instancie la classe contenant la fonction à tester
-        $services = DonneesService::getDefaultDonneesService();
-
-        // Appeler la fonction à tester
-        $result = $services->updateMDP($pdo, $idUtil, $nouveauMDP);
-
-        // Vérifier que la mise à jour n'a pas réussi (aucune ligne n'a été affectée)
-        $this->assertEquals(0, $result->rowCount());
+        // WHEN On modifie son mot de passe
+        $result = $this->services->updateMDP($this->pdo, $idUtil, $nouveauMDP);
+        // THEN Rien ne se passe et la fonction retourne un resultat négatif
+        self::assertFalse($result);
     }
     public function testViewMoodsPagination()
     {
-        // Préparer les données de test (exemple : insérer des humeurs dans la base de données)
+        /* TODO */
+        // GIVEN Les humeurs enregistrés par un utilisateur ainsi que ces préférances d'affichage
         $idUtil = 1;
-        $premier = 0;
-        $parPage = 10;
-        $pdo = DataBase::getPDOTest();
-        // Instancie la classe contenant la fonction à tester
-        $services = DonneesService::getDefaultDonneesService();
-        
-
-        // Appeler la fonction à tester
-        $result = $services->viewMoodsPagination($pdo, $idUtil, $premier, $parPage);
-
-
-        // Vérifier le nombre d'humeurs retournées
-        $this->assertEquals($parPage, $result->rowCount());
+        $indicePremièreHumeur = 0;
+        $nbHumeurParPage = 10;
+        // Excepted On récupère ses humeurs selon ses préférances
+        $result = $this->services->viewMoodsPagination($this->pdo, $idUtil, $indicePremièreHumeur, $nbHumeurParPage);
+        $this->assertEquals($nbHumeurParPage, $result->rowCount());
     }
 
     public function testMdpSuccess()
     {
-
+        // GIVEN Un utilisateur avec un mot de passe
         $idUtil=1 ;
-        $mdpAttendu= "802914f9f0eb162333be54e12dddeb6b";
-        $pdo = DataBase::getPDOTest();
-        // Instancie la classe contenant la fonction à tester
-        $services = DonneesService::getDefaultDonneesService();
-        $result = $services->mdp($pdo,$idUtil);
-
-        $this->assertEquals($mdpAttendu,$result->fetch()['motDePasse']);
-
-
+        $mdpAttendu= "9aaf575815b9cc742b568924d5bc68a5";
+        // Excepted On récupère son mot de passe
+        $result = $this->services->mdp($this->pdo,$idUtil);
+        $this->assertEquals($mdpAttendu,$result->fetchColumn());
     }
 }
   
