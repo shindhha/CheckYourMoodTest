@@ -1,26 +1,30 @@
 <?php
 
-
-namespace services;
+namespace Models;
+require_once 'Models/Table.php';
 
 use PDOException;
-use yasmf\DataSource;
-
+use services\code;
+use services\DonneesService;
+use services\ID;
+use services\nouveau;
+use services\pdo;
+use services\tab;
+use services\util;
+use Models\Table;
 class User extends Table
 {
-    private $id;
-    public function __construct()
+    private $fillable = ['nom','prenom'];
+    public function __construct(int $id = 0)
     {
-        parent::__construct("utilisateur",$this);
+        parent::__construct("utilisateur",$id);
     }
 
     /**
      * @return mixed
      */
-    public function getId()
-    {
-        return $this->id;
-    }
+
+
 
     /**
      * Cette fonction permet de modifier les données de l'utilisateur qui possède le codeUtilisateur :$util

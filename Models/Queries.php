@@ -1,6 +1,6 @@
 <?php
 
-namespace Services;
+namespace Models;
 
 class Queries
 {
@@ -8,15 +8,19 @@ class Queries
     private $from;
     private $where;
     private $params;
+    private $tableName;
     public function __construct($tableName)
     {
+        $this->tableName = $tableName;
         $this->from = "FROM " . $tableName;
         $this->select = "SELECT ";
-        $this->select = "WHERE ";
+        $this->where = "WHERE ";
     }
 
     public function select($params = null) {
-
+        if ($params == null) {
+            $this->select .= '*';
+        }
         if (isset($params)) {
             foreach ($params as $param) {
                 if ($this->select != "SELECT ") $this->select .= ",";
@@ -26,14 +30,26 @@ class Queries
         return $this;
     }
     public function where($columnName,$value) {
-        if ($this->where != "WHERE ") { $this->where .= " AND ";}
         $this->where .= $columnName . " = ?";
         $this->params[] = $value;
         return $this;
     }
 
+    public function insert($column) {
+        $insert = "INSERT INTO " . $this->tableName . "( ";
+        foreach ($column as $keys) {
+            $insert .= $keys . ",";
+        }
+        return $insert;
+
+    }
+
+    public function update() {
+
+    }
+
     public function getQueries() {
-        return $this->select . "\n" . $this->from . "\n" . $this->where;
+        return $this->select . " " . $this->from . " " . $this->where;
     }
     public function getParams() {
         return $this->params;

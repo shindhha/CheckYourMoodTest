@@ -7,6 +7,7 @@ use PDOException;
 
 class MoodService
 {
+
     /**
      * Cette fonction permet de visualisé l'ensemble des humeurs
      * @param pdo 

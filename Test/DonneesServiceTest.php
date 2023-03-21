@@ -27,20 +27,6 @@ class DonneesServiceTest extends TestCase
         $this->pdo->rollBack();
     }
 
-    public function getDataSet() {
-        return new MyApp_DbUnit_ArrayDataSet(array(
-            [
-                'utilisateur' => [
-                    'codeUtil' => 1,
-                    'prenom' => 'Jules22b',
-                    'nom' => 'Blanchard',
-                    'identifiant' => 'jules22b',
-                    'mail' => 'jules.blanchard@iut-rodez.fr',
-                    'motDePasse' => '0cbc6611f5540bd0809a388dc95a615b'
-                ]
-            ]
-        ));
-    }
     public function testsUpdateDataSucces()
     {
 
@@ -69,7 +55,7 @@ class DonneesServiceTest extends TestCase
         $identifiantModifier = $this->pdo->query("SELECT identifiant FROM utilisateur WHERE codeUtil = 1");
         $identifiantModifier = $identifiantModifier->fetch();
         assertTrue($result);
-        assertEquals('guillaume',$identifiantModifier['identifiant']);
+        assertEquals("guillaume",$identifiantModifier['identifiant']);
 
         // GIVEN Un utilisateur ayant saisie plusieur nouvelles informations valides a propos de son compte
         $idUtil = 1;
@@ -85,7 +71,7 @@ class DonneesServiceTest extends TestCase
         $infosModifier = $this->pdo->query("SELECT * FROM utilisateur WHERE codeUtil = 1");
         $infosModifier = $infosModifier->fetch();
         assertTrue($result);
-        assertEquals('guillaume',$infosModifier['identifiant']);
+        assertEquals("guillaume",$infosModifier['identifiant']);
         assertEquals('guillaume.medard@iut-rodez.fr',$infosModifier['mail']);
         assertEquals(md5('TestMotDePasse'),$infosModifier['motDePasse']);
 
