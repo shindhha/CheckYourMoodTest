@@ -2,7 +2,7 @@
 namespace controllers;
 
 use services\HomeService;
-use services\MoodService;
+use services\Mood;
 use yasmf\HttpHelper;
 use yasmf\View;
 

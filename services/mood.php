@@ -3,10 +3,19 @@
 
 namespace services;
 
+use Models\Table;
 use PDOException;
 
-class MoodService
+class Mood extends Table
 {
+    protected $tableName = "humeur";
+    protected $primaryKey = 'codeHumeur';
+    protected $fillable = ['libelle','dateHumeur','heure','idUtil','contexte'];
+
+    public function __construct($id = 0)
+    {
+        parent::__construct($id);
+    }
 
     /**
      * Cette fonction permet de visualisé l'ensemble des humeurs
@@ -42,9 +51,7 @@ class MoodService
      * @param util id de l'utilisateur
      */
     public function insertMood($pdo, $code, $date, $heure, $contexte, $util){
-
         try{
-
             $sql = "INSERT INTO humeur(libelle,dateHumeur,heure,idUtil,contexte) VALUES(:libelle,:dateA,:heure,:id,:contexte)";
             $searchStmt = $pdo->prepare($sql);
             $searchStmt->bindParam('id', $util);
@@ -53,7 +60,6 @@ class MoodService
             $searchStmt->bindParam('heure', $heure);
             $searchStmt->bindParam('contexte', $contexte);
             $searchStmt->execute();
-
             return "ok";
         }catch(PDOException $e){
             return "nOk";
@@ -64,9 +70,9 @@ class MoodService
     private static $defaultMoodService;
     public static function getDefaultMoodService()
     {
-        if (MoodService::$defaultMoodService == null) {
-            MoodService::$defaultMoodService = new MoodService();
+        if (Mood::$defaultMoodService == null) {
+            Mood::$defaultMoodService = new Mood();
         }
-        return MoodService::$defaultMoodService;
+        return Mood::$defaultMoodService;
     }
 }

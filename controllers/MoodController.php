@@ -2,7 +2,7 @@
 namespace controllers;
 
 use services\HomeService;
-use services\MoodService;
+use services\Mood;
 use yasmf\HttpHelper;
 use yasmf\View;
 
@@ -13,7 +13,7 @@ class MoodController {
 
     public function __construct()
     {
-        $this->MoodService = MoodService::getDefaultMoodService();
+        $this->MoodService = Mood::getDefaultMoodService();
         $this->HomeService = HomeService::getDefaultHomeService();
     }
 

@@ -7,6 +7,7 @@ use PDOException;
 use services\code;
 use services\DonneesService;
 use services\ID;
+use services\Mood;
 use services\nouveau;
 use services\pdo;
 use services\tab;
@@ -16,11 +17,16 @@ class User extends Table
 {
 
     protected $tableName = "utilisateur";
-    protected $fillable = ['nom','prenom'];
+    protected $fillable = ['nom','prenom','identifiant','mail','motDePasse'];
+    protected $primaryKey = "codeUtil";
 
     public function __construct($id = 0)
     {
         parent::__construct($id);
+    }
+
+    public function humeurs () {
+        return $this->hasMany(Mood::class,"idUtil");
     }
 
     /**
@@ -37,32 +43,11 @@ class User extends Table
      * @param util id de l'utilisateur
      */
     public function updateData($pdo,$tab,$util){
-        
-        $setter = "";
-        $tabExec = [];
-		
-        foreach($tab as $cle => $value){
-            if($value != ""){
-                if($setter == ""){
-                    $setter .= " SET ";
-                }else{
-                    $setter .= " , ";
-                }
-                $setter .= " ".$cle." = :".$cle." ";
-                $tabExec[$cle] = $value;
-            }
-            
-        }
-        $setter .= "  where codeUtil = :util ";
-        $tabExec['util'] = $util;
-
+        $user = new User($util);
+        $user->fill($tab);
         try {
-
-            $requete = "UPDATE utilisateur ".$setter ;
-            $sql = $pdo->prepare($requete);
-            $sql->execute($tabExec);
+            $user->save();
             return true;
-
         } catch (PDOException $e) {
             echo $e->getMessage();
             return false;
@@ -126,6 +111,8 @@ class User extends Table
     */
    public function donneesUser($pdo, $idUtil)
    {
+        $user = new User($idUtil);
+        return $user->toArray();
        $sql = "SELECT prenom, nom, identifiant, mail FROM `utilisateur` WHERE codeUtil = :id";
        $searchStmt = $pdo->prepare($sql);
        $searchStmt->bindParam('id', $idUtil);
@@ -161,6 +148,8 @@ class User extends Table
      */
    public function mdp($pdo, $idUtil)
    {
+        $user = new User($idUtil);
+        return $user->motDePasse;
        $sql = "SELECT motDePasse FROM `utilisateur` WHERE codeUtil = :id";
        $searchStmt = $pdo->prepare($sql);
        $searchStmt->bindParam('id', $idUtil);
@@ -177,6 +166,9 @@ class User extends Table
     */
     public function updateMDP($pdo, $idUtil, $nouveauMDP)
     {
+        $user = new User($idUtil);
+        $user->motDePasse = md5($nouveauMDP);
+        $user->save();
         $sql = "UPDATE `utilisateur` SET motDePasse=:nouveauMDP WHERE codeUtil = :id";
         $searchStmt = $pdo->prepare($sql);
         $searchStmt->bindParam('id', $idUtil);

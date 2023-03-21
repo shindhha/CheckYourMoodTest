@@ -2,7 +2,7 @@
 namespace controllers;
 
 use services\HomeService;
-use services\MoodService;
+use services\Mood;
 use services\DonneesService;
 use yasmf\HttpHelper;
 use yasmf\View;
@@ -18,7 +18,7 @@ class HomeController {
     {
         $this->HomeService = HomeService::getDefaultHomeService();
         $this->DonneesService = DonneesService::getDefaultDonneesService();
-        $this->MoodService = MoodService::getDefaultMoodService();
+        $this->MoodService = Mood::getDefaultMoodService();
     }
 
     //Fonction de connection

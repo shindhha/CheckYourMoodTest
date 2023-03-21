@@ -2,7 +2,7 @@
 namespace controllers;
 
 use services\DonneesService;
-use services\MoodService;
+use services\Mood;
 use yasmf\HttpHelper;
 use yasmf\View;
 use services\VisualisationService;
@@ -17,7 +17,7 @@ class DonneesController {
     public function __construct()
     {
         $this->DonneesService = DonneesService::getDefaultDonneesService();
-        $this->MoodService = MoodService::getDefaultMoodService(); 
+        $this->MoodService = Mood::getDefaultMoodService();
         $this->visualisationService = VisualisationService::getDefaultVisualisationService();
     }
 
