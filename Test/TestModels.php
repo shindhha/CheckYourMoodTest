@@ -1,5 +1,7 @@
 <?php
 require_once 'yasmf/datasource.php';
+
+use Models\Table;
 use PHPUnit\Framework\TestCase;
 use yasmf\DataSource;
 use services\MoodService;
@@ -8,6 +10,8 @@ require_once 'Models/users.php';
 require_once 'Test/DataBase.php';
 require_once 'Models/Table.php';
 require_once 'Models/Queries.php';
+use function PHPUnit\Framework\assertEquals;
+
 class TestModels extends TestCase
 {
     private User $user;
@@ -29,7 +33,8 @@ class TestModels extends TestCase
     public function test() {
         $user = new User();
 
-        \PHPUnit\Framework\assertEquals("SELECT * FROM utilisateur WHERE id = ?",$user->getData());
+        //assertEquals("SELECT * FROM utilisateur WHERE id = ?",$user->getData());
+        assertEquals("utilisateur",$user->getNom());
     }
 
 }

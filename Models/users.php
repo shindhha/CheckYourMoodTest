@@ -14,10 +14,13 @@ use services\util;
 use Models\Table;
 class User extends Table
 {
-    private $fillable = ['nom','prenom'];
-    public function __construct(int $id = 0)
+
+    protected $tableName = "utilisateur";
+    protected $fillable = ['nom','prenom'];
+
+    public function __construct($id = 0)
     {
-        parent::__construct("utilisateur",$id);
+        parent::__construct($id);
     }
 
     /**

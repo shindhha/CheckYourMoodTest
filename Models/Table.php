@@ -6,17 +6,16 @@ use yasmf\DataSource;
 
 class Table
 {
-    private $tableName;
+    protected $tableName;
+    protected $fillable;
     private $pdo;
     private $id;
-    private $fillable;
 
-    public function __construct($tableName, $id = 0)
+    protected function __construct($id = 0)
     {
         if ($id != 0) {
             $this->id = $id;
         }
-        $this->tableName = $tableName;
         $this->pdo = DataSource::getPDO();
 
         foreach ($this->fillable as $keys) {
@@ -46,6 +45,10 @@ class Table
     public function getId()
     {
         return $this->id;
+    }
+
+    public function getNom() {
+        return $this->tableName;
     }
 
 

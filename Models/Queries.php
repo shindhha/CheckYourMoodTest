@@ -38,6 +38,7 @@ class Queries
     public function insert($column) {
         $insert = "INSERT INTO " . $this->tableName . "( ";
         foreach ($column as $keys) {
+            if ($this->select != "SELECT ") $insert .= ",";
             $insert .= $keys . ",";
         }
         return $insert;
@@ -45,7 +46,7 @@ class Queries
     }
 
     public function update() {
-
+        $update = "UPDATE " . $this->tableName;
     }
 
     public function getQueries() {
