@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/texte_bonjour"
+        android:text="@string/bonjour"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="@dimen/margin_space"
+        android:layout_marginBottom="@dimen/margin_large_space"
+        />
+
+    <View style="@style/Divider"/>
+
+    <TextView
+        android:layout_marginTop="@dimen/margin_large_space"
+        android:layout_marginHorizontal="@dimen/margin_cote"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/humeurs_liste"
+        />
+
+
+    <TableLayout
+        android:layout_marginTop="@dimen/margin_space"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/table_humeurs"
+        android:layout_marginBottom="@dimen/margin_large_space"
+        >
+        <!-- Infos : table remplie uniquement au runtime -->
+    </TableLayout>
+
+    <View style="@style/Divider"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/humeur_ajout"
+        android:layout_marginHorizontal="@dimen/margin_cote"
+        android:layout_marginTop="@dimen/margin_large_space"
+        />
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/margin_cote"
+        android:layout_marginTop="@dimen/margin_space"
+        >
+
+        <TextView
+            android:id="@+id/texte_emotion_liste"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/emotion"/>
+
+
+        <Spinner
+            android:id="@+id/spinner_emotion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/texte_emotion_liste"
+            android:layout_alignParentStart="true"
+            android:layout_toStartOf="@id/constraint_layout_date_heure"
+
+            />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:id="@+id/constraint_layout_date_heure"
+            >
+
+            <TextView
+                android:id="@+id/texte_date_heure"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/date_heure"
+                app:layout_constraintBottom_toTopOf="@+id/btn_changer_date_heure"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <Button
+                android:id="@+id/btn_changer_date_heure"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:text="@string/date_heure_btn"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </RelativeLayout>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/ajouter"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/margin_space"
+        />
+
+
+
+</LinearLayout>

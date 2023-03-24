@@ -1,0 +1,62 @@
+<resources>
+    <string name="app_name">CheckYourMooDroid</string>
+
+
+    <!-- Strings pour la page d'action -->
+
+    <string name="bonjour">Bonjour, %1$s !</string>
+    <string name="humeurs_liste">Vos 5 dernières humeurs :</string>
+    <string name="humeur_ajout">Ajouter une humeur :</string>
+    <string name="emotion">Emotion :</string>
+    <string name="date_heure">Date et heure : %1$s</string>
+    <string name="date_heure_btn">Modifier</string>
+    <string name="description">Description :</string>
+    <string name="ajouter">Ajouter</string>
+
+
+    <!-- Strings pour la page de connexion -->
+
+    <string name="auth">Veuillez vous authentifier</string>
+    <string name="identifiant">Identifiant :</string>
+    <string name="mot_de_passe">Mot de passe :</string>
+    <string name="connexion">Connexion</string>
+
+
+
+    <string-array name="emotions_liste">
+
+        <item>Emotion 1</item>
+        <item>Emotion 2</item>
+        <item>Emotion 3</item>
+        <item>Emotion 3</item>
+        <item>Emotion 3</item>
+        <item>Emotion 3</item>
+        <item>Emotion 3</item>
+        <item>Emotion 3</item>
+        <item>Emotion 3</item>
+        <item>Emotion 3</item>
+        <item>Emotion 3</item>
+        <item>Emotion 3</item>
+        <item>Emotion 3</item>
+        <item>Emotion 3</item>
+        <item>Emotion 3</item>
+        <item>Emotion 3</item>
+        <item>Emotion 3</item>
+        <item>Emotion 3</item>
+        <item>Emotion 3</item>
+        <item>Emotion 3</item>
+        <item>Emotion 3</item>
+        <item>Emotion 3</item>
+        <item>Emotion 3</item>
+        <item>Emotion 3</item>
+        <item>Emotion 3</item>
+        <item>Emotion 3</item>
+        <item>Emotion 3</item>
+        <item>Emotion 3</item>
+        <item>Emotion 3</item>
+        <item>Emotion …</item>
+
+    </string-array>
+
+
+</resources>

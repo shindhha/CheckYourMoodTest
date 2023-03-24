@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="margin_large_space">25dip</dimen>
+    <dimen name="margin_space">15dip</dimen>
+    <dimen name="margin_cote">20dip</dimen>
+
+</resources>
