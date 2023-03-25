@@ -6,11 +6,16 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ApiCYMD {
 
@@ -19,51 +24,90 @@ public class ApiCYMD {
     private static String api_key = null;
 
 
-    private static RequestQueue fileRequetes;
-
-    private static RequestQueue getFileRequetes() {
-        if (fileRequetes == null) {
-            fileRequetes = Volley.newRequestQueue(MainActivity.getContext());
-        }
-        return fileRequetes;
-    }
-
-
+    /**
+     * Méthode permettant de se connecter à l'API et de fermer la fenêtre de connexion
+     * @param login Le login de l'utilisateur
+     * @param password Le mot de passe de l'utilisateur
+     */
     public static void auth(String login, String password) {
 
         String url = API_URL + "login?login=" + login + "&password=" + password;
-        System.out.println("URL DE LA DEMANDE : " + url);
 
-        JsonObjectRequest request = new JsonObjectRequest(
-                Request.Method.GET,
+        Requests.simpleJSONObjectRequest(
                 url,
                 null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        // On traite la réponse
-                        try {
-                            api_key = response.get("APIKEYDEMONAPPLI").toString();
-                            System.out.println("API KEY : " + api_key);
-                            MainActivity.getContext().authSuccess();
-
-                        } catch (JSONException e) {
-                            System.out.println("ERREUR : " + e.getMessage());
-                        }
+                Request.Method.GET,
+                (JSONObject response) -> {
+                    try {
+                        api_key = response.get("APIKEYDEMONAPPLI").toString();
+                        System.out.println("API KEY : " + api_key);
+                        MainActivity.getContext().authSuccess();
+                    } catch (JSONException e) {
+                        System.out.println("ERREUR : " + e.getMessage());
                     }
                 },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(MainActivity.getContext(), "Erreur de connexion", Toast.LENGTH_SHORT).show();
-                        System.out.println("ERREUR : " + error.getMessage());
-                    }
+                (VolleyError error) -> {
+                    Toast.makeText(MainActivity.getContext(), "Erreur de connexion", Toast.LENGTH_SHORT).show();
+                    System.out.println("ERREUR : " + error.getMessage());
                 }
         );
-        getFileRequetes().add(request);
-        System.out.println("Requête envoyée");
+    }
 
 
+    /**
+     * Méthode permettant de récupérer les informations de l'utilisateur
+     */
+    public static void getUserInfos() {
 
+        String url = API_URL + "user";
+
+        Map<String, String> header = new HashMap<>();
+        header.put("APIKEYDEMONAPPLI", api_key);
+
+        // ---- Obtention des informations de l'utilisateur ----
+        Requests.simpleJSONObjectRequest(
+                url,
+                header,
+                Request.Method.GET,
+                (JSONObject response) -> {
+                    MainActivity.getContext().displayUserInfos(response);
+                },
+                (VolleyError error) -> {
+                    Toast.makeText(MainActivity.getContext(), "Erreur de connexion", Toast.LENGTH_SHORT).show();
+                    System.out.println("ERREUR : " + error.getMessage());
+                }
+        );
+
+        // ---- Obtention de la liste des émotions de la DB ----
+        url = API_URL + "emotions";
+        Requests.simpleJSONArrayRequest(
+                url,
+                header,
+                Request.Method.GET,
+                (JSONArray response) -> {
+                    Emotions.loadEmotion(response);
+                    MainActivity.getContext().loadSpinner();
+                },
+                (VolleyError error) -> {
+                    Toast.makeText(MainActivity.getContext(), "Erreur de connexion", Toast.LENGTH_SHORT).show();
+                    System.out.println("ERREUR : " + error.getMessage());
+                }
+        );
+
+
+        // ---- Obtention des 5 dernières humeurs ----
+        url = API_URL + "humeurs";
+        Requests.simpleJSONArrayRequest(
+                url,
+                header,
+                Request.Method.GET,
+                (JSONArray response) -> {
+                    MainActivity.getContext().displayHumeurs(response);
+                },
+                (VolleyError error) -> {
+                    Toast.makeText(MainActivity.getContext(), "Erreur de connexion", Toast.LENGTH_SHORT).show();
+                    System.out.println("ERREUR : " + error.getMessage());
+                }
+        );
     }
 }

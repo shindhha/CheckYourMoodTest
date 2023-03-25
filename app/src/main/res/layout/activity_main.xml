@@ -27,16 +27,22 @@
         android:text="@string/humeurs_liste"
         />
 
-
-    <TableLayout
-        android:layout_marginTop="@dimen/margin_space"
-        android:layout_width="match_parent"
+    <HorizontalScrollView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/table_humeurs"
+        android:layout_marginHorizontal="@dimen/margin_cote"
+        android:layout_marginTop="@dimen/margin_space"
         android:layout_marginBottom="@dimen/margin_large_space"
         >
-        <!-- Infos : table remplie uniquement au runtime -->
-    </TableLayout>
+        <TableLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/table_humeurs"
+            >
+            <!-- Info : table remplie uniquement au runtime -->
+        </TableLayout>
+    </HorizontalScrollView>
+
 
     <View style="@style/Divider"/>
 
@@ -85,6 +91,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/date_heure"
+                android:gravity="center_horizontal"
                 app:layout_constraintBottom_toTopOf="@+id/btn_changer_date_heure"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
