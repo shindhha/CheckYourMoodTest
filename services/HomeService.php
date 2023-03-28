@@ -27,7 +27,7 @@ class HomeService
 
         while($row = $searchStmt->fetch()){
             $infos = [
-                "util" => $row['codeUtil'],
+                "idUtil" => $row['codeUtil'],
                 "nom" => $row['nom'],
                 "prenom" => $row['prenom'],
                 "mail" => $row['mail']
