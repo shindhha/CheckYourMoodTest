@@ -111,14 +111,25 @@
 
     </RelativeLayout>
 
+    <EditText
+        android:id="@+id/description_humeur"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/margin_cote"
+        android:hint="@string/description"
+        android:inputType="text"
+        android:maxLines="1"
+        android:importantForAutofill="no"
+        />
+
     <Button
+        android:id="@+id/btn_poster_humeur"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/ajouter"
+        android:text="@string/poster_humeur"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="@dimen/margin_space"
         />
-
 
 
 </LinearLayout>

@@ -10,8 +10,8 @@
     <string name="emotion">Emotion :</string>
     <string name="date_heure">Date et heure :\n%1$s</string>
     <string name="date_heure_btn">Modifier</string>
-    <string name="description">Description :</string>
-    <string name="ajouter">Ajouter</string>
+    <string name="description">Description de l\'humeur …</string>
+    <string name="poster_humeur">Poster l\'humeur</string>
 
 
     <!-- Strings pour la page de connexion -->

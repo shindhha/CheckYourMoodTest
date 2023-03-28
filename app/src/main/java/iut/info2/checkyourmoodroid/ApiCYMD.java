@@ -3,12 +3,7 @@ package iut.info2.checkyourmoodroid;
 import android.widget.Toast;
 
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,6 +31,7 @@ public class ApiCYMD {
         Requests.simpleJSONObjectRequest(
                 url,
                 null,
+                null,
                 Request.Method.GET,
                 (JSONObject response) -> {
                     try {
@@ -55,7 +51,7 @@ public class ApiCYMD {
 
 
     /**
-     * Méthode permettant de récupérer les informations de l'utilisateur
+     * Méthode permettant de récupérer les informations de l'utilisateur + la liste des émotions
      */
     public static void getUserInfos() {
 
@@ -68,6 +64,7 @@ public class ApiCYMD {
         Requests.simpleJSONObjectRequest(
                 url,
                 header,
+                null,
                 Request.Method.GET,
                 (JSONObject response) -> {
                     MainActivity.getContext().displayUserInfos(response);
@@ -83,29 +80,84 @@ public class ApiCYMD {
         Requests.simpleJSONArrayRequest(
                 url,
                 header,
+                null,
                 Request.Method.GET,
                 (JSONArray response) -> {
                     Emotions.loadEmotion(response);
-                    MainActivity.getContext().loadSpinner();
+                    MainActivity.getContext().loadSpinnerHumeurs();
+
+                    // Les émotions sont chargées, on peut maintenant obtenir les humeurs de l'utilisateur
+                    getUserHumeurs();
                 },
                 (VolleyError error) -> {
                     Toast.makeText(MainActivity.getContext(), "Erreur de connexion", Toast.LENGTH_SHORT).show();
                     System.out.println("ERREUR : " + error.getMessage());
                 }
         );
+    }
 
+    /**
+     * Méthode permettant d'obtenir les humeurs de l'utilisateur.
+     * Séparé de getUserInfos() car elle nécessite que la liste des émotions soit chargée
+     */
+    public static void getUserHumeurs() {
+
+        String url = API_URL + "humeurs";
+
+        Map<String, String> header = new HashMap<>();
+        header.put("APIKEYDEMONAPPLI", api_key);
 
         // ---- Obtention des 5 dernières humeurs ----
-        url = API_URL + "humeurs";
         Requests.simpleJSONArrayRequest(
                 url,
                 header,
+                null,
                 Request.Method.GET,
                 (JSONArray response) -> {
                     MainActivity.getContext().displayHumeurs(response);
                 },
                 (VolleyError error) -> {
                     Toast.makeText(MainActivity.getContext(), "Erreur de connexion", Toast.LENGTH_SHORT).show();
+                    System.out.println("ERREUR : " + error.getMessage());
+                }
+        );
+    }
+
+    public static void postHumeur(
+            int codeHumeur,
+            String commentaire,
+            String date,
+            String heure
+    ) {
+
+        Map<String, String> header = new HashMap<>();
+        header.put("APIKEYDEMONAPPLI", api_key);
+
+
+        JSONObject body = new JSONObject();
+        try {
+            body.put("LIBELLE", codeHumeur);
+            body.put("DATE_HUMEUR", date);
+            body.put("HEURE", heure);
+            body.put("CONTEXTE", commentaire);
+        } catch (JSONException e) {
+            System.out.println("ERREUR : " + e.getMessage());
+        }
+
+        String url = API_URL + "humeur";
+
+        System.out.println("BODY : " + body);
+
+        Requests.simpleJSONObjectRequest(
+                url,
+                header,
+                body,
+                Request.Method.POST,
+                (JSONObject response) -> {
+                    MainActivity.getContext().humeurPosted(true);
+                },
+                (VolleyError error) -> {
+                    MainActivity.getContext().humeurPosted(false);
                     System.out.println("ERREUR : " + error.getMessage());
                 }
         );

@@ -37,6 +37,7 @@ public class Requests {
      */
     public static void simpleJSONObjectRequest(String url,
                                                Map<String, String> header,
+                                               JSONObject body,
                                                int method,
                                                Consumer<JSONObject> processResponse,
                                                Consumer<VolleyError> processError) {
@@ -45,7 +46,7 @@ public class Requests {
         JsonObjectRequest request = new JsonObjectRequest(
                 method,
                 url,
-                null,
+                body,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -85,6 +86,7 @@ public class Requests {
      */
     public static void simpleJSONArrayRequest(String url,
                                                Map<String, String> header,
+                                               JSONArray body,
                                                int method,
                                                Consumer<JSONArray> processResponse,
                                                Consumer<VolleyError> processError) {
@@ -93,7 +95,7 @@ public class Requests {
         JsonArrayRequest request = new JsonArrayRequest(
                 method,
                 url,
-                null,
+                body,
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray response) {

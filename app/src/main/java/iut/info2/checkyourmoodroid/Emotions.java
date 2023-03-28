@@ -36,8 +36,4 @@ public class Emotions {
     public static HashMap<Integer, JSONObject> getEmotions() {
         return emotions;
     }
-
-    public static int size() {
-        return emotions.size();
-    }
 }
