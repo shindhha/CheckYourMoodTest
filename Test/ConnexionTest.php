@@ -7,23 +7,32 @@ require_once 'services/homeservice.php';
 
 class ConnexionTest extends TestCase
 {
-    
+    private $pdo;
+    private $services;
+    protected function setUp(): void
+    {
+        $this->pdo =  DataBase::getPDOTest();
+        $this->services = HomeService::getDefaultHomeService();
+        $this->pdo->beginTransaction();
+    }
+    protected function tearDown(): void
+    {
+        $this->pdo->rollBack();
+    }
     public function testConnexionSucces(){
-        
-        $pdo = DataBase::getPDOTest();
-        $compte = HomeService::getDefaultHomeService();        
+
         
         // Préparez les données de test
         $idUtil = 'jules22b';
-        $mdpUtil = 'root2022';
+        $mdpUtil = 'root';
         $expectedResult = [
             "util" => "1",
             "nom" => "Blanchard",
-            "prenom" => "Jules22b",
+            "prenom" => "Jules",
             "mail" => "jules.blanchard@iut-rodez.fr"
         ];
         // Appelez la méthode à tester avec les données de test
-        $result = $compte->connexion($pdo, $idUtil, $mdpUtil);
+        $result = $this->services->connexion($this->pdo, $idUtil, $mdpUtil);
         
         // Assurez-vous que les résultats de la méthode sont ceux que vous attendez
         $this->assertEquals($result,$expectedResult );

@@ -165,7 +165,11 @@ class DonneesService
         $searchStmt->bindParam('nouveauMDP', $nvMDP);
         try {
             $searchStmt->execute();
-            return true;
+            if ($searchStmt->rowCount() == 1){
+                return true;
+            }else{
+                return false;
+            }
         } catch (PDOException $e) {
             return false;
         }

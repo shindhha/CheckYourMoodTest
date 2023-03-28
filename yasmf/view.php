@@ -29,10 +29,20 @@ class View
         $this->relativePath = $relativePath;
     }
 
-    public function setVar($key, $value)
+    public function setVar(string $key, mixed $value) : View
     {
         $this->viewParams[$key] = $value;
         return $this;
+    }
+
+    /**
+     * Get var corresponding to given key
+     *
+     * @param string $key the name of the variable
+     * @return mixed the value of the variable
+     */
+    public function getVar(string $key) : mixed {
+        return $this->viewParams[$key];
     }
 
     public function render()
@@ -42,5 +52,8 @@ class View
         // "enrole" the php file used to build and send the response
         require_once $_SERVER['DOCUMENT_ROOT'] . "/$this->relativePath.php";
     }
-
+    public function getRelativePath(): string
+    {
+        return $this->relativePath;
+    }
 }

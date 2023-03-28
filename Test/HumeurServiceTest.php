@@ -11,14 +11,26 @@ require_once 'Test/DataBase.php';
 
 class HumeurServiceTest extends TestCase
 {
-   
+    private $pdo;
+    private $services;
+
+    protected function setUp(): void
+    {
+        $this->services = MoodService::getDefaultMoodService();
+        $this->pdo =  DataBase::getPDOTest();
+        $this->pdo->beginTransaction();
+    }
+    protected function tearDown(): void
+    {
+        $this->pdo->rollBack();
+    }
+
     public function testLibelles(){
     
-        $pdo = DataBase::getPDOTest();
-        $services = MoodService::getDefaultMoodService();
+
         
         // Appeler la fonction à tester
-        $result = $services->libelles($pdo);
+        $result = $this->services->libelles($this->pdo);
         // Assertion
         $this->assertEquals($result->rowCount(),27 );
     }
@@ -27,8 +39,7 @@ class HumeurServiceTest extends TestCase
     public function testInsertMoodFailed()
     {
         // Préparer les données de test
-        $pdo = DataBase::getPDOTest();
-        $services = MoodService::getDefaultMoodService();
+
         $code = 0;//humeur invalide
         $date = '2023-14-01';
         $heure = '12:00:00';
@@ -36,13 +47,13 @@ class HumeurServiceTest extends TestCase
         $util = 1;
 
         // Appeler la fonction à tester
-        $result = $services->insertMood($pdo, $code, $date, $heure, $contexte, $util);
+        $result = $this->services->insertMood($this->pdo, $code, $date, $heure, $contexte, $util);
 
         // Assertions
         $this->assertEquals("nOk", $result);
         $code = 22 ; // humeur valide
         $date = '2022-14-01';// invalide
-        $result = $services->insertMood($pdo, $code, $date, $heure, $contexte, $util);
+        $result = $this->services->insertMood($this->pdo, $code, $date, $heure, $contexte, $util);
         $this->assertEquals("nOk", $result);
 
     }
@@ -50,8 +61,6 @@ class HumeurServiceTest extends TestCase
     public function testInsertMoodSuccess()
     {
         // Préparer les données de test
-        $pdo = DataBase::getPDOTest();
-        $services = MoodService::getDefaultMoodService();
         $code = 22;
         $date = date("Y-m-d");
         $heureActuelle = date("H");
@@ -60,7 +69,7 @@ class HumeurServiceTest extends TestCase
         $util = 1;
        
         // Appeler la fonction à tester
-        $result = $services->insertMood($pdo, $code, $date, $heure, $contexte, $util);
+        $result = $this->services->insertMood($this->pdo, $code, $date, $heure, $contexte, $util);
 
         // Assertions
         $this->assertEquals("ok", $result);
@@ -70,12 +79,10 @@ class HumeurServiceTest extends TestCase
     public function testViewMoods()
     {
         // Préparer les données de test
-        $pdo = DataBase::getPDOTest();
-        $services = MoodService::getDefaultMoodService();
         $idUtil = 1;
 
         // Appeler la fonction à tester
-        $result = $services->viewMoods($pdo, $idUtil);
+        $result = $this->services->viewMoods($this->pdo, $idUtil);
 
         // Assertions
         $this->assertInstanceOf(PDOStatement::class, $result);
@@ -85,11 +92,10 @@ class HumeurServiceTest extends TestCase
     public function testViewMoodsWithNoMoods()
     {
         // Préparer les données de test
-        $pdo = DataBase::getPDOTest();
-        $services = MoodService::getDefaultMoodService();
+
         $idUtil = 2 ;
         // Appeler la fonction à tester
-        $result = $services->viewMoods($pdo, $idUtil);
+        $result = $this->services->viewMoods($this->pdo, $idUtil);
 
         // Assertions
         $this->assertInstanceOf(PDOStatement::class, $result);

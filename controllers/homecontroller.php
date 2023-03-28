@@ -14,12 +14,20 @@ class HomeController {
     private $DonneesService;
     private $MoodService;
 
-    public function __construct()
+    public function __construct($DonneesService=null, $HomeService=null, $MoodService=null)
     {
-        $this->HomeService = HomeService::getDefaultHomeService();
-        $this->DonneesService = DonneesService::getDefaultDonneesService();
-        $this->MoodService = MoodService::getDefaultMoodService();
+        if ($DonneesService == null){
+            $DonneesService = DonneesService::getDefaultDonneesService();
+            $homeService = HomeService::getDefaultHomeService();
+            $moodService = MoodService::getDefaultMoodService();
+        }else{
+            $this->DonneesService = $DonneesService;
+            $this->HomeService = $HomeService;
+            $this->MoodService = $MoodService;
+        }
+
     }
+
 
     //Fonction de connection
     public function login($pdo){

@@ -2,6 +2,7 @@
 require_once 'yasmf/datasource.php';
 require_once 'services/donneesservice.php';
 require_once 'Test/DataBase.php';
+require_once 'services/moodservice.php';
 
 use services\DonneesService;
 use PHPUnit\Framework\TestCase;
@@ -9,15 +10,18 @@ use yasmf\DataSource;
 use PHPUnit\Framework;
 use function PHPUnit\Framework\assertEquals;
 use function PHPUnit\Framework\assertTrue;
+use services\MoodService;
 
 class DonneesServiceTest extends TestCase
 {
     private $pdo;
     private $services;
+    private $moodService;
 
     protected function setUp(): void
     {
         $this->services = DonneesService::getDefaultDonneesService();
+        $this->moodService = MoodService::getDefaultMoodService();
         $this->pdo =  DataBase::getPDOTest();
         $this->pdo->beginTransaction();
     }
@@ -27,20 +31,7 @@ class DonneesServiceTest extends TestCase
         $this->pdo->rollBack();
     }
 
-    public function getDataSet() {
-        return new MyApp_DbUnit_ArrayDataSet(array(
-            [
-                'utilisateur' => [
-                    'codeUtil' => 1,
-                    'prenom' => 'Jules22b',
-                    'nom' => 'Blanchard',
-                    'identifiant' => 'jules22b',
-                    'mail' => 'jules.blanchard@iut-rodez.fr',
-                    'motDePasse' => '0cbc6611f5540bd0809a388dc95a615b'
-                ]
-            ]
-        ));
-    }
+
     public function testsUpdateDataSucces()
     {
 
@@ -106,7 +97,7 @@ class DonneesServiceTest extends TestCase
         $infosParDefauts = $infosParDefauts->fetch();
         self::assertFalse($result);
         assertEquals('Blanchard',$infosParDefauts['nom']);
-        assertEquals('Jules22b',$infosParDefauts['prenom']);
+        assertEquals('Jules',$infosParDefauts['prenom']);
         assertEquals('jules.blanchard@iut-rodez.fr',$infosParDefauts['mail']);
     }
 
@@ -115,7 +106,7 @@ class DonneesServiceTest extends TestCase
         // GIVEN Un utilisateur enregistré dans la base de données
         $idUtil = 1;
         $user = [
-            'prenom' => 'Jules22b',
+            'prenom' => 'Jules',
             'nom' => 'Blanchard',
             'identifiant' => 'jules22b',
             'mail' => 'jules.blanchard@iut-rodez.fr',
@@ -130,17 +121,20 @@ class DonneesServiceTest extends TestCase
     public function testUpdateHumeurSuccess() {
 
 
-        // GIVEN Une description valide pour une humeur déjà enregistrer
+        $date = date('Y-m-d ');
+        $heure = date('H:i:s');
+        $mood = $this->moodService->insertMood($this->pdo, 22,$date,$heure,'aaaaaaa', 1);
+        $lastId = $this->pdo->lastInsertId();
         $tab = [
               'id' => 1,
-              'codeHumeur' => 3002,
+              'codeHumeur' => $lastId,
               'contexte' => "Jadore cette journée"
         ];
         // WHEN On valide les changements
         $result = $this->services->updateHumeur($this->pdo, $tab);
         // THEN La nouvelle description est enregistrer dans la base de données
         $this->assertTrue($result);
-        $humeurModifier = $this->pdo->query("SELECT contexte FROM humeur WHERE codeHumeur = 3002 AND idUtil = 1");
+        $humeurModifier = $this->pdo->query("SELECT contexte FROM humeur WHERE codeHumeur =".$lastId." AND idUtil = 1");
         $humeurModifier = $humeurModifier->fetch();
         assertEquals($tab['contexte'],$humeurModifier['contexte']);
     }
@@ -214,7 +208,7 @@ class DonneesServiceTest extends TestCase
     {
         // GIVEN Un utilisateur avec un mot de passe
         $idUtil=1 ;
-        $mdpAttendu= "9aaf575815b9cc742b568924d5bc68a5";
+        $mdpAttendu= "63a9f0ea7bb98050796b649e85481845";
         // Excepted On récupère son mot de passe
         $result = $this->services->mdp($this->pdo,$idUtil);
         $this->assertEquals($mdpAttendu,$result->fetchColumn());
