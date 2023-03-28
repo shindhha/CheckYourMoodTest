@@ -27,7 +27,14 @@ class Table
         une ligne dans la base de données correspondante.
          */
         if ($id != 0) {
-            // TODO Initialiser les attributs au valeur stocker dans la base de données
+            // On récupère les données depuis la base
+            $dataValues = Queries::Table($this->tableName)
+                          ->where($this->primaryKey,$id)
+                          ->execute()->fetch();
+            // puis on initialise les attributs de l'objet aux valeurs de la base
+            foreach ($dataValues as $keys => $value) {
+                $this->$keys = $value;
+            }
         }
     }
 
@@ -73,9 +80,36 @@ class Table
     }
 
     /**
+     * Si l'id de l'objet est égale a 0 :
+     * Insère les attributs de l'objet dans la table
+     * 'tableName' de la base de données puis récupère l'id
+     * Sinon update les valeurs des attributs de l'objet pour la ligne avec l'id 'id'
+     */
+    public function save() {
+        $q = Queries::Table($this->tableName);
+        if ($this->id == 0) {
+            $this->id = $q->insert($this->toArray());
+        } else {
+            $queries = $q->where($this->primaryKey,$this->id)
+                       ->update($this->toArray());
+        }
+    }
+
+    /**
      * Assigne null a tout les attributs lister dans fillable
      */
     public function reset() {
         $this->fill([]);
+    }
+
+    public function getPrimaryKey() {
+        return $this->primaryKey;
+    }
+    public function getId()
+    {
+        return $this->id;
+    }
+    public function getTableName() {
+        return $this->tableName;
     }
 }

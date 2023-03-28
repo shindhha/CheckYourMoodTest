@@ -77,4 +77,31 @@ class TestsTable extends TestCase
         // dont la clé est stocker dans 'fillable' sous la forme d'un tableau 'cle' => 'valeur'
         assertEquals(['nomTest' => 'Test toArray','description' => $description],$tableTest->toArray());
     }
+
+    public function testsaveOnNoExist() {
+        // GIVEN Un utilisateur n'ayant pas encore été enregistrer dans la base de données avec des données pré enregistrer
+        $test = new TableTest();
+        $test->fill([
+            "nomTest" => "testsaveOnNoExist",
+            "description" => "test"
+        ]);
+        // WHEN On appelle la méthode save
+        $test->save();
+        // THEN L'utilisateur est enregistrer dans la base de données
+        $insertedTest = $this->pdo->query("SELECT * FROM Tests WHERE id = " . $test->getId() )->fetch();
+        assertEquals($test->toArray(),$insertedTest);
+    }
+
+    public function testSaveOnExist()
+    {
+        // GIVEN Un utilisateur ayant déjà été enregistrer dans la base de données dans un état.
+        // Et avec des attributs d'objet différent.
+        $test = new TableTest(1);
+        $test->motDePasse = md5('nouveauMDP');
+        // WHEN On appelle la méthode save
+        $test-save();
+        // THEN Les données de l'utilisateur sont mises a jour.
+        $insertedTest = $this->pdo->query("SELECT * FROM Tests WHERE id = " . $test->getId() )->fetch();
+        assertEquals($test->toArray(),$insertedTest);
+    }
 }
