@@ -6,7 +6,7 @@ class QueryBuilder
 {
     // La requete construite
     private $query;
-    // Lien vers la base de données
+    // Objet PDO établissant la connexion a la base de données
     private static $pdo;
     // Champ souhaiter lors d'une requete select
     private $fields = [];
@@ -41,14 +41,10 @@ class QueryBuilder
      * Permet de spécifier les colonnes que l'on souhaite récupérer dans notre requete
      * que sa soit de la forme d'un tableau ou une série d'arguement
      *               (['nom','prenom',...]) ou ('nom','prenom',...)
-     * @param $tabParams Liste des colonnes sous forme de tableau
      * @param ...$params Liste des colonnes sous forme d'argument
      * @return $this la requete pour continuer la construction en chaine
      */
-    public function select($tabParams = ['*'],...$params) {
-        foreach ($tabParams as $param) {
-            $this->fields[] = $param;
-        }
+    public function select(...$params) {
         foreach ($params as $param) {
             $this->fields[] = $param;
         }
@@ -62,7 +58,11 @@ class QueryBuilder
      * @param $operateur Indique comment la colonne doit matcher la valeur.
      * @return $this la requete pour continuer la construction en chaine
      */
-    public function where($columnName,$value,$operateur = '=') {
+    public function where($columnName,$operateur = '=',$value = null) {
+        if ($value === null) {
+            $value = $operateur;
+            $operateur = "=";
+        }
         $this->whereClose[] = $columnName . " " . $operateur . " :" . $columnName;
         $this->params[$columnName] = $value;
         return $this;
@@ -83,20 +83,25 @@ class QueryBuilder
             }
         }
         $this->query =  "UPDATE " . $this->tableName . " SET " . $params . $this->getWhereClose();
+        return $this;
     }
 
     /**
      * Execute la requete de type select précédement construite puis renvoie le pdo statement
      * @return mixed le pdo statement correspondant a la requete construite
      */
-    public function get() {
-        foreach ($this->fields as $column) {
-            if ($select != "") {
-                $select .= " , ";
+    private function construct_select_request() {
+        if (empty($this->fields)) {
+            $select = "*";
+        } else {
+            foreach ($this->fields as $column) {
+                if ($select != "") {
+                    $select .= ",";
+                }
+                $select .= $column;
             }
-            $select .= $column;
         }
-        $this->query = "SELECT " . $select . " FROM " . $this->tableName . $this->getWhereClose();
+        return "SELECT " . $select . " FROM " . $this->tableName . $this->getWhereClose();
     }
 
     /**
@@ -129,23 +134,31 @@ class QueryBuilder
                 $params .= ",";
             }
             $fields .= $keys;
-            $params .= " :" . $keys;
+            $params .= ":" . $keys;
             $this->params[$keys] = $value;
         }
-        $this->query = "INSERT INTO " . $this->tableName . "( ". $fields . ") VALUES " . "( " . $params . ")";
+        $this->query = "INSERT INTO " . $this->tableName . " (". $fields . ") VALUES " . "(" . $params . ")";
+        return $this;
     }
-
-
-
     /**
      * Prepare et Execute la requete avec les arguments avec l'objet pdo
      * @return void
      */
     public function execute() {
+        if ($this->query == null) {
+            $this->query = $this->construct_select_request();
+        }
         return static::$pdo->prepare($this->query)->execute($this->params);
     }
     public function getQuery() {
+        if ($this->query == null) {
+            $this->query = $this->construct_select_request();
+        }
         return $this->query;
+    }
+
+    public function getParams() {
+        return $this->params;
     }
 
 }
