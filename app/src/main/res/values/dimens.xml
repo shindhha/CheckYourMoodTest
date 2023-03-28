@@ -4,5 +4,6 @@
     <dimen name="margin_large_space">25dip</dimen>
     <dimen name="margin_space">15dip</dimen>
     <dimen name="margin_cote">20dip</dimen>
+    <dimen name="text_size_large">17sp</dimen>
 
 </resources>

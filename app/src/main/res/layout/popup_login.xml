@@ -19,7 +19,7 @@
 
     <View
         android:id="@+id/view"
-        style="@style/Divider"
+        style="@style/divider"
         android:layout_marginVertical="@dimen/margin_large_space"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

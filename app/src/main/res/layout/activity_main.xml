@@ -1,135 +1,144 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+
+<ScrollView
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".MainActivity">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/texte_bonjour"
-        android:text="@string/bonjour"
-        android:gravity="center_horizontal"
-        android:layout_marginTop="@dimen/margin_space"
-        android:layout_marginBottom="@dimen/margin_large_space"
-        />
-
-    <View style="@style/Divider"/>
-
-    <TextView
-        android:layout_marginTop="@dimen/margin_large_space"
-        android:layout_marginHorizontal="@dimen/margin_cote"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/humeurs_liste"
-        />
-
-    <HorizontalScrollView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/margin_cote"
-        android:layout_marginTop="@dimen/margin_space"
-        android:layout_marginBottom="@dimen/margin_large_space"
-        >
-        <TableLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/table_humeurs"
-            >
-            <!-- Info : table remplie uniquement au runtime -->
-        </TableLayout>
-    </HorizontalScrollView>
-
-
-    <View style="@style/Divider"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/humeur_ajout"
-        android:layout_marginHorizontal="@dimen/margin_cote"
-        android:layout_marginTop="@dimen/margin_large_space"
-        />
-
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/margin_cote"
-        android:layout_marginTop="@dimen/margin_space"
-        >
+        android:orientation="vertical"
+        tools:context=".MainActivity">
 
         <TextView
-            android:id="@+id/texte_emotion_liste"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/emotion"/>
-
-
-        <Spinner
-            android:id="@+id/spinner_emotion"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/texte_emotion_liste"
-            android:layout_alignParentStart="true"
-            android:layout_toStartOf="@id/constraint_layout_date_heure"
-
+            android:id="@+id/texte_bonjour"
+            android:text="@string/bonjour"
+            android:gravity="center_horizontal"
+            android:layout_marginTop="@dimen/margin_space"
+            android:layout_marginBottom="@dimen/margin_large_space"
             />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <View style="@style/divider"/>
+
+        <TextView
+            style="@style/titre"
+            android:layout_marginTop="@dimen/margin_large_space"
+            android:layout_marginHorizontal="@dimen/margin_cote"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:id="@+id/constraint_layout_date_heure"
+            android:text="@string/humeurs_liste"
+            />
+
+
+        <HorizontalScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/margin_cote"
+            android:layout_marginTop="@dimen/margin_space"
+            android:layout_marginBottom="@dimen/margin_space"
+            >
+            <TableLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/table_humeurs"
+                >
+                <!-- Info : table remplie uniquement au runtime -->
+            </TableLayout>
+        </HorizontalScrollView>
+
+        <View style="@style/divider"/>
+
+        <TextView
+            style="@style/titre"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/humeur_ajout"
+            android:layout_marginHorizontal="@dimen/margin_cote"
+            android:layout_marginTop="@dimen/margin_large_space"
+            />
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/margin_cote"
+            android:layout_marginTop="@dimen/margin_space"
             >
 
             <TextView
-                android:id="@+id/texte_date_heure"
+                android:id="@+id/texte_emotion_liste"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/date_heure"
-                android:gravity="center_horizontal"
-                app:layout_constraintBottom_toTopOf="@+id/btn_changer_date_heure"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
+                android:text="@string/emotion"/>
 
-            <Button
-                android:id="@+id/btn_changer_date_heure"
+
+            <Spinner
+                android:id="@+id/spinner_emotion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/texte_emotion_liste"
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@id/constraint_layout_date_heure"
+
+                />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:text="@string/date_heure_btn"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
+                android:id="@+id/constraint_layout_date_heure"
+                >
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                <TextView
+                    android:id="@+id/texte_date_heure"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/date_heure"
+                    android:gravity="center_horizontal"
+                    app:layout_constraintBottom_toTopOf="@+id/btn_changer_date_heure"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
 
+                <Button
+                    android:id="@+id/btn_changer_date_heure"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:text="@string/date_heure_btn"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
 
-    </RelativeLayout>
-
-    <EditText
-        android:id="@+id/description_humeur"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/margin_cote"
-        android:hint="@string/description"
-        android:inputType="text"
-        android:maxLines="1"
-        android:importantForAutofill="no"
-        />
-
-    <Button
-        android:id="@+id/btn_poster_humeur"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/poster_humeur"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="@dimen/margin_space"
-        />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-</LinearLayout>
+        </RelativeLayout>
+
+        <EditText
+            android:id="@+id/description_humeur"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/margin_cote"
+            android:hint="@string/description"
+            android:inputType="text"
+            android:maxLines="1"
+            android:importantForAutofill="no"
+            />
+
+        <Button
+            android:id="@+id/btn_poster_humeur"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/poster_humeur"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/margin_space"
+            />
+
+    </LinearLayout>
+
+</ScrollView>

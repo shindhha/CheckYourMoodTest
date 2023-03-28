@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class ApiCYMD {
 
-    public static final String API_URL = "http://172.20.0.2/CYMD/api/";
+    public static final String API_URL = "http://10.0.2.2/CYMD/api/";
 
     private static String api_key = null;
 
