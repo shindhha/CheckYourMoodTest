@@ -25,6 +25,10 @@ class DonneesServiceTest extends TestCase
         $this->pdo =  DataBase::getPDOTest();
         $this->pdo->beginTransaction();
     }
+    protected function tearDown(): void
+    {
+        $this->pdo->rollBack();
+    }
 
     protected function tearDown(): void
     {

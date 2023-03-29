@@ -3,29 +3,30 @@
 
 namespace services;
 
+require_once 'Modeles/User.php';
+require_once 'Modeles/QueryBuilder.php';
 use PDOException;
-
+use Modeles\User;
+use Modeles\QueryBuilder;
 class HomeService
 {
     /**
      * Connexion d'un utilisateur
-     * @param $idUtil id de l'utilisateur
+     * @param $identifiant id de l'utilisateur
      * @param $mdpUtil mot de passe de l'utilisateur
      * @param $pdo \PDO the pdo object
      * @return \PDOStatement the statement referencing the result set
      */
-    public function connexion($pdo, $idUtil, $mdpUtil)
+    public function connexion($pdo, $identifiant, $mdpUtil)
     {
-        $mdpUtil = md5($mdpUtil);
-        $sql = "SELECT codeUtil, prenom, nom, mail FROM utilisateur WHERE identifiant = :idUtil AND motDePasse = :mdpUtil" ;
-        $searchStmt = $pdo->prepare($sql);
-        $searchStmt->bindParam('idUtil', $idUtil);
-        $searchStmt->bindParam('mdpUtil', $mdpUtil);
-        $searchStmt->execute();
-
+        $searchStmt = QueryBuilder::Table('utilisateur')
+            ->select('codeUtil','prenom','nom','mail')
+            ->where('identifiant',$identifiant)
+            ->where('motDePasse',md5($mdpUtil))->execute();
         $infos = ["util" => 0];
 
-        while($row = $searchStmt->fetch()){
+        if ($searchStmt->rowCount() > 0) {
+            $row = $searchStmt->fetch();
             $infos = [
                 "idUtil" => $row['codeUtil'],
                 "nom" => $row['nom'],
@@ -33,7 +34,6 @@ class HomeService
                 "mail" => $row['mail']
             ];
         }
-
         //Renvoie un tableau avec les infos de l'utilisateur si le id et mdp sont corrects
         return $infos;
     }

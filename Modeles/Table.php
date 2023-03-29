@@ -3,6 +3,9 @@
 namespace Modeles;
 
 
+use http\Exception\InvalidArgumentException;
+use http\Exception\UnexpectedValueException;
+
 /**
  * Etendre un objet par cette classe permet d'interagir avec la base de données
  * en utilisant la programmation orienté objet.
@@ -21,20 +24,30 @@ class Table
 
     protected function __construct($id = 0)
     {
+        if ($id < 0) {
+            throw new InvalidArgumentException("L'id ne peut pas être inférieure à 0");
+        }
         $this->id = $id;
-        /*
-        Si l'id donner est différentes de 0 on assume le fait qu'il existe
-        une ligne dans la base de données correspondante.
-         */
-        if ($id != 0) {
-            // On récupère les données depuis la base
-            $dataValues = Queries::Table($this->tableName)
-                          ->where($this->primaryKey,$id)
-                          ->execute()->fetch();
-            // puis on initialise les attributs de l'objet aux valeurs de la base
-            foreach ($dataValues as $keys => $value) {
-                $this->$keys = $value;
-            }
+    }
+
+    /**
+     * Recupère les informations demander depuis la base de données jusqu'à l'objet courant
+     * @param ...$column la liste des colonnes souhaiter
+     * @throws \UnexpectedValueException
+     *         si l'id de l'objet est égal a 0 puisque l'id minimal dans notre base de données
+     *         vaut 1
+     */
+    public function fetch(...$column) {
+        if ($this->id == 0) {
+           throw new UnexpectedValueException("Aucune ligne ne peut avoir l'id 0 !");
+        }
+        $dataValues = Queries::Table($this->tableName)
+            ->select($column)
+            ->where($this->primaryKey,$this->id)
+            ->execute()->fetch();
+        // puis on initialise les attributs de l'objet aux valeurs de la base
+        foreach ($dataValues as $keys => $value) {
+            $this->$keys = $value;
         }
     }
 
@@ -86,7 +99,7 @@ class Table
      * Sinon update les valeurs des attributs de l'objet pour la ligne avec l'id 'id'
      */
     public function save() {
-        $q = Queries::Table($this->tableName);
+        $q = QueryBuilder::Table($this->tableName);
         if ($this->id == 0) {
             $this->id = $q->insert($this->toArray());
         } else {

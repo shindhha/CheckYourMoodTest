@@ -148,7 +148,9 @@ class QueryBuilder
         if ($this->query == null) {
             $this->query = $this->construct_select_request();
         }
-        return static::$pdo->prepare($this->query)->execute($this->params);
+        $stmt = static::$pdo->prepare($this->query);
+        $stmt->execute($this->params);
+        return $stmt;
     }
     public function getQuery() {
         if ($this->query == null) {

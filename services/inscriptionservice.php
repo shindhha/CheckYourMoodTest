@@ -2,7 +2,10 @@
 
 
 namespace services;
+require_once 'Modeles/Table.php';
+require_once 'Modeles/QueryBuilder.php';
 
+use Couchbase\User;
 use PDOException;
 
 class InscriptionService
@@ -20,7 +23,9 @@ class InscriptionService
     public function inscription($pdo, $id, $mdp, $mail, $nom, $prenom)
     {
         try{
-
+            $user = new User();
+            $user->fill();
+            $user->save();
             $mdp = md5($mdp);
             $searchStmt = $pdo->prepare("INSERT INTO utilisateur(prenom,nom,identifiant,mail,motdePasse) VALUES(:prenom,:nom,:id,:mail,:mdp);" );
             $searchStmt->bindParam('id', $id);
