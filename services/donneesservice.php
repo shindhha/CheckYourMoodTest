@@ -165,6 +165,7 @@ class DonneesService
         $searchStmt->bindParam('nouveauMDP', $nvMDP);
         try {
             $searchStmt->execute();
+
             if ($searchStmt->rowCount() == 1){
                 return true;
             }else{

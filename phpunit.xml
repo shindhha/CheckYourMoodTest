@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit bootstrap="vendor/autoload.php"
     stopOnFailure="false">
+    <coverage>
+        <include>
+            <directory suffix=".php">controllers</directory>
+            <directory suffix=".php">services</directory>
+        </include>
+    </coverage>
 
     <testsuites>
         <testsuite name="">
             <directory>Test</directory>
+            <file>Test/homecontrollertest.php</file>
         </testsuite>
     </testsuites>
 </phpunit>

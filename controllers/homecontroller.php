@@ -19,6 +19,7 @@ class HomeController {
 
     public function __construct($donneesService = null, $homeService = null, $moodService = null)
     {
+<<<<<<< HEAD
         if ($donneesService == null){
             $this->donneesService = DonneesService::getDefaultDonneesService();
             $this->homeService = HomeService::getDefaultHomeService();
@@ -27,6 +28,16 @@ class HomeController {
             $this->donneesService = $donneesService;
             $this->homeService = $homeService;
             $this->moodService = $moodService;
+=======
+        if ($DonneesService == null){
+            $this->DonneesService = DonneesService::getDefaultDonneesService();
+            $this->HomeService = HomeService::getDefaultHomeService();
+            $this->MoodServiceoodService = MoodService::getDefaultMoodService();
+        }else{
+            $this->DonneesService = $DonneesService;
+            $this->HomeService = $HomeService;
+            $this->MoodService = $MoodService;
+>>>>>>> origin/AmeliorationTestDonneesServices
         }
 
     }
