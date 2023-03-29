@@ -2,7 +2,6 @@
 namespace controllers;
 require_once 'Modeles/User.php';
 use Modeles\QueryBuilder;
-use services\InscriptionService;
 use yasmf\HttpHelper;
 use yasmf\HttpHelper\getParam;
 use yasmf\View;

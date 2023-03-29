@@ -1,7 +1,6 @@
 <?php
 namespace controllers;
 
-use services\InscriptionService;
 use yasmf\HttpHelper;
 use yasmf\View;
 
