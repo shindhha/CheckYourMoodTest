@@ -1,13 +1,16 @@
-<?php 
+<?php
+
+namespace services;
+
+use DataBase;
 use PHPUnit\Framework\TestCase;
-use yasmf\DataSource;
+
 require_once 'yasmf/datasource.php';
 
-use services\MoodService;
 require_once 'services/moodservice.php';
 
 require_once 'Test/DataBase.php';
-
+use PDOStatement;
 
 class HumeurServiceTest extends TestCase
 {
@@ -17,22 +20,23 @@ class HumeurServiceTest extends TestCase
     protected function setUp(): void
     {
         $this->services = MoodService::getDefaultMoodService();
-        $this->pdo =  DataBase::getPDOTest();
+        $this->pdo = DataBase::getPDOTest();
         $this->pdo->beginTransaction();
     }
+
     protected function tearDown(): void
     {
         $this->pdo->rollBack();
     }
 
-    public function testLibelles(){
-    
+    public function testLibelles()
+    {
 
-        
+
         // Appeler la fonction à tester
         $result = $this->services->libelles($this->pdo);
         // Assertion
-        $this->assertEquals($result->rowCount(),27 );
+        $this->assertEquals($result->rowCount(), 27);
     }
 
 
@@ -51,12 +55,13 @@ class HumeurServiceTest extends TestCase
 
         // Assertions
         $this->assertEquals("nOk", $result);
-        $code = 22 ; // humeur valide
+        $code = 22; // humeur valide
         $date = '2022-14-01';// invalide
         $result = $this->services->insertMood($this->pdo, $code, $date, $heure, $contexte, $util);
         $this->assertEquals("nOk", $result);
 
     }
+
     // A revoir test non fonctionnelle
     public function testInsertMoodSuccess()
     {
@@ -67,7 +72,7 @@ class HumeurServiceTest extends TestCase
         $heure = date("H", strtotime("-1 hour", $heureActuelle));
         $contexte = 'test success';
         $util = 1;
-       
+
         // Appeler la fonction à tester
         $result = $this->services->insertMood($this->pdo, $code, $date, $heure, $contexte, $util);
 
@@ -86,14 +91,14 @@ class HumeurServiceTest extends TestCase
 
         // Assertions
         $this->assertInstanceOf(PDOStatement::class, $result);
-        $this->assertTrue($result->fetchAll() >= 1 );
+        $this->assertTrue($result->fetchAll() >= 1);
     }
 
     public function testViewMoodsWithNoMoods()
     {
         // Préparer les données de test
 
-        $idUtil = 2 ;
+        $idUtil = 2;
         // Appeler la fonction à tester
         $result = $this->services->viewMoods($this->pdo, $idUtil);
 

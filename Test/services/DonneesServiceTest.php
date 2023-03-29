@@ -1,16 +1,15 @@
-<?php 
+<?php
+
+namespace services;
 require_once 'yasmf/datasource.php';
 require_once 'services/donneesservice.php';
 require_once 'Test/DataBase.php';
 require_once 'services/moodservice.php';
 
-use services\DonneesService;
+use DataBase;
 use PHPUnit\Framework\TestCase;
-use yasmf\DataSource;
-use PHPUnit\Framework;
 use function PHPUnit\Framework\assertEquals;
 use function PHPUnit\Framework\assertTrue;
-use services\MoodService;
 
 class DonneesServiceTest extends TestCase
 {
@@ -22,14 +21,14 @@ class DonneesServiceTest extends TestCase
     {
         $this->services = DonneesService::getDefaultDonneesService();
         $this->moodService = MoodService::getDefaultMoodService();
-        $this->pdo =  DataBase::getPDOTest();
+        $this->pdo = DataBase::getPDOTest();
         $this->pdo->beginTransaction();
     }
+
     protected function tearDown(): void
     {
         $this->pdo->rollBack();
     }
-
 
 
     public function testsUpdateDataSucces()
@@ -46,7 +45,7 @@ class DonneesServiceTest extends TestCase
         $motDePasseModifier = $this->pdo->query("SELECT motDePasse FROM utilisateur WHERE codeUtil = 1");
         $motDePasseModifier = $motDePasseModifier->fetch();
         assertTrue($result);
-        assertEquals(md5('TestMotDePasse'),$motDePasseModifier['motDePasse']);
+        assertEquals(md5('TestMotDePasse'), $motDePasseModifier['motDePasse']);
 
 
         // GIVEN Un utilisateur ayant saisie un nouvel identifiant valide
@@ -60,7 +59,7 @@ class DonneesServiceTest extends TestCase
         $identifiantModifier = $this->pdo->query("SELECT identifiant FROM utilisateur WHERE codeUtil = 1");
         $identifiantModifier = $identifiantModifier->fetch();
         assertTrue($result);
-        assertEquals('guillaume',$identifiantModifier['identifiant']);
+        assertEquals('guillaume', $identifiantModifier['identifiant']);
 
         // GIVEN Un utilisateur ayant saisie plusieur nouvelles informations valides a propos de son compte
         $idUtil = 1;
@@ -76,11 +75,12 @@ class DonneesServiceTest extends TestCase
         $infosModifier = $this->pdo->query("SELECT * FROM utilisateur WHERE codeUtil = 1");
         $infosModifier = $infosModifier->fetch();
         assertTrue($result);
-        assertEquals('guillaume',$infosModifier['identifiant']);
-        assertEquals('guillaume.medard@iut-rodez.fr',$infosModifier['mail']);
-        assertEquals(md5('TestMotDePasse'),$infosModifier['motDePasse']);
+        assertEquals('guillaume', $infosModifier['identifiant']);
+        assertEquals('guillaume.medard@iut-rodez.fr', $infosModifier['mail']);
+        assertEquals(md5('TestMotDePasse'), $infosModifier['motDePasse']);
 
     }
+
     public function testsUpdateFaillure()
     {
         // GIVEN Un utilisateur ayant entrer des nouvelles valeurs vides
@@ -96,9 +96,9 @@ class DonneesServiceTest extends TestCase
         $infosParDefauts = $this->pdo->query("SELECT * FROM utilisateur WHERE codeUtil = 1");
         $infosParDefauts = $infosParDefauts->fetch();
         self::assertFalse($result);
-        assertEquals('Blanchard',$infosParDefauts['nom']);
-        assertEquals('Jules',$infosParDefauts['prenom']);
-        assertEquals('jules.blanchard@iut-rodez.fr',$infosParDefauts['mail']);
+        assertEquals('Blanchard', $infosParDefauts['nom']);
+        assertEquals('Jules', $infosParDefauts['prenom']);
+        assertEquals('jules.blanchard@iut-rodez.fr', $infosParDefauts['mail']);
     }
 
     public function testsDonneesUserSuccess()
@@ -112,31 +112,32 @@ class DonneesServiceTest extends TestCase
             'mail' => 'jules.blanchard@iut-rodez.fr',
         ];
         // EXCEPTED On récupère un pdo statement qui contient ses données
-        $result = $this->services->donneesUser($this->pdo,$idUtil);
-        $this->assertEquals($result->fetch(),$user);
+        $result = $this->services->donneesUser($this->pdo, $idUtil);
+        $this->assertEquals($result->fetch(), $user);
 
     }
 
     // Ce test n'est pas passé ( Cause appel du Trigger pour modifier le contexte sous 24h)
-    public function testUpdateHumeurSuccess() {
+    public function testUpdateHumeurSuccess()
+    {
 
 
         $date = date('Y-m-d ');
         $heure = date('H:i:s');
-        $mood = $this->moodService->insertMood($this->pdo, 22,$date,$heure,'aaaaaaa', 1);
+        $mood = $this->moodService->insertMood($this->pdo, 22, $date, $heure, 'aaaaaaa', 1);
         $lastId = $this->pdo->lastInsertId();
         $tab = [
-              'id' => 1,
-              'codeHumeur' => $lastId,
-              'contexte' => "Jadore cette journée"
+            'id' => 1,
+            'codeHumeur' => $lastId,
+            'contexte' => "Jadore cette journée"
         ];
         // WHEN On valide les changements
         $result = $this->services->updateHumeur($this->pdo, $tab);
         // THEN La nouvelle description est enregistrer dans la base de données
         $this->assertTrue($result);
-        $humeurModifier = $this->pdo->query("SELECT contexte FROM humeur WHERE codeHumeur =".$lastId." AND idUtil = 1");
+        $humeurModifier = $this->pdo->query("SELECT contexte FROM humeur WHERE codeHumeur =" . $lastId . " AND idUtil = 1");
         $humeurModifier = $humeurModifier->fetch();
-        assertEquals($tab['contexte'],$humeurModifier['contexte']);
+        assertEquals($tab['contexte'], $humeurModifier['contexte']);
     }
 
     public function testUpdateHumeurFailure()
@@ -159,13 +160,13 @@ class DonneesServiceTest extends TestCase
     public function testNombreHumeur()
     {
         /* TODO testNombreHumeur */
-        $idUtil = 1 ;
+        $idUtil = 1;
         // Appeler la fonction à tester
         $result = $this->services->nombreHumeur($this->pdo, $idUtil);
         // Assertion pour vérifier le résultat attendu
-        $this->assertTrue($result->fetchColumn()>= 200);
+        $this->assertTrue($result->fetchColumn() >= 200);
     }
-    
+
     public function testUpdateMdp()
     {
         // GIVEN Un utilisateur ayant saisie un nouveau mot de passe valide
@@ -192,6 +193,7 @@ class DonneesServiceTest extends TestCase
         // THEN Rien ne se passe et la fonction retourne un resultat négatif
         self::assertFalse($result);
     }
+
     public function testViewMoodsPagination()
     {
         /* TODO */
@@ -207,11 +209,11 @@ class DonneesServiceTest extends TestCase
     public function testMdpSuccess()
     {
         // GIVEN Un utilisateur avec un mot de passe
-        $idUtil=1 ;
-        $mdpAttendu= "63a9f0ea7bb98050796b649e85481845";
+        $idUtil = 1;
+        $mdpAttendu = "63a9f0ea7bb98050796b649e85481845";
         // Excepted On récupère son mot de passe
-        $result = $this->services->mdp($this->pdo,$idUtil);
-        $this->assertEquals($mdpAttendu,$result->fetchColumn());
+        $result = $this->services->mdp($this->pdo, $idUtil);
+        $this->assertEquals($mdpAttendu, $result->fetchColumn());
     }
 }
   

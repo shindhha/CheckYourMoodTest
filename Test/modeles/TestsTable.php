@@ -1,14 +1,16 @@
 <?php
+
+namespace modeles;
 require_once 'Modeles/Table.php';
-require_once 'Test/TableTest.php';
+require_once 'Test/modeles/TableTest.php';
 require_once 'Test/DataBase.php';
 require_once 'Modeles/QueryBuilder.php';
 
+use DataBase;
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework;
 use function PHPUnit\Framework\assertEquals;
 use function PHPUnit\Framework\assertTrue;
-use Modeles\QueryBuilder;
+
 class TestsTable extends TestCase
 {
     private $pdo;
@@ -16,7 +18,7 @@ class TestsTable extends TestCase
 
     protected function setUp(): void
     {
-        $this->pdo =  DataBase::getPDOTest();
+        $this->pdo = DataBase::getPDOTest();
         $this->pdo->beginTransaction();
         QueryBuilder::setDBSource($this->pdo);
     }
@@ -25,16 +27,19 @@ class TestsTable extends TestCase
     {
         $this->pdo->rollBack();
     }
-    public function testFillOnValidData() {
+
+    public function testFillOnValidData()
+    {
         // GIVEN Une table avec les colonnes ['nomTest','dateTest']
         $tableTest = new TableTest();
         // WHEN On appele la methode fill avec des valeurs dont les clés sont reconnues
         $tableTest->fill(['nomTest' => 'Fill sur des valeurs valides']);
         // THEN La table enregistre les valeurs sous forme d'attributs.
-        assertEquals('Fill sur des valeurs valides',$tableTest->nomTest);
+        assertEquals('Fill sur des valeurs valides', $tableTest->nomTest);
     }
 
-    public function testFillOnUnidentifiedData() {
+    public function testFillOnUnidentifiedData()
+    {
         // GIVEN Une table avec les colonnes ['nomTest','dateTest']
         $tableTest = new TableTest();
         // WHEN On appele la methode fill avec des valeurs dont les clés ne sont pas reconnues
@@ -43,46 +48,52 @@ class TestsTable extends TestCase
         self::assertNull($tableTest->age);
     }
 
-    public function testFill2TimeNullValues() {
+    public function testFill2TimeNullValues()
+    {
         // GIVEN Une table avec les colonnes ['nomTest','dateTest'] avec des valeurs non nulle.
         $tableTest = new TableTest();
         $tableTest->fill(['nomTest' => 'Fill sur des valeurs valides']);
         // WHEN On appele la methode fill avec un enssemble vide
         $tableTest->fill([]);
         // THEN Touts les attributs sont a nouveau null
-        assertEquals(null,$tableTest->nomTest);
+        assertEquals(null, $tableTest->nomTest);
     }
-    public function testFill2Time() {
+
+    public function testFill2Time()
+    {
         // GIVEN Une table avec les colonnes ['nomTest','dateTest'] avec des valeurs non nulle.
         $tableTest = new TableTest();
         $tableTest->fill(['nomTest' => 'Fill sur des valeurs valides']);
         // WHEN On appele la methode fill avec un enssemble vide
         $tableTest->fill(['nomTest' => 'Fill sur des valeurs déjà initialiser']);
         // THEN Touts les attributs ont leur nouvelle valeur.
-        assertEquals("Fill sur des valeurs déjà initialiser",$tableTest->nomTest);
+        assertEquals("Fill sur des valeurs déjà initialiser", $tableTest->nomTest);
     }
 
-    public function testFillWithouOverride2TimeNullValues() {
+    public function testFillWithouOverride2TimeNullValues()
+    {
         // GIVEN Une table avec les colonnes ['nomTest','dateTest'] avec des valeurs non nulle.
         $tableTest = new TableTest();
         $tableTest->fill(['nomTest' => 'Fill sur des valeurs valides']);
         // WHEN On appele la methode fill avec un enssemble vide
         $tableTest->fillWithoutOverride([]);
         // THEN Les attributs sont inchangé.
-        assertEquals("Fill sur des valeurs valides",$tableTest->nomTest);
+        assertEquals("Fill sur des valeurs valides", $tableTest->nomTest);
     }
 
-    public function testFillWithouOverride2Time() {
+    public function testFillWithouOverride2Time()
+    {
         // GIVEN Une table avec les colonnes ['nomTest','dateTest'] avec des valeurs non nulle.
         $tableTest = new TableTest();
         $tableTest->fill(['nomTest' => 'Fill sur des valeurs valides']);
         // WHEN On appele la methode fill avec un enssemble vide
         $tableTest->fillWithoutOverride(['nomTest' => 'FillWithoutOverride sur des valeurs déjà initialiser']);
         // THEN Les attributs sont inchangé.
-        assertEquals("Fill sur des valeurs valides",$tableTest->nomTest);
+        assertEquals("Fill sur des valeurs valides", $tableTest->nomTest);
     }
 
-    public function testToArray() {
+    public function testToArray()
+    {
         // GIVEN Une table avec les colonnes ['nomTest','dateTest'] ainsi que de multiples attributs
         $tableTest = new TableTest();
         $tableTest->fill(['nomTest' => 'Test toArray']);                   // Valeur valide
@@ -92,10 +103,11 @@ class TestsTable extends TestCase
         $tableTest->age = 12;                                              // Valeur invalide
         // EXCEPTED La fonction toArray() ne renvoie que les attributs
         // dont la clé est stocker dans 'fillable' sous la forme d'un tableau 'cle' => 'valeur'
-        assertEquals(['nomTest' => 'Test toArray','description' => $description],$tableTest->toArray());
+        assertEquals(['nomTest' => 'Test toArray', 'description' => $description], $tableTest->toArray());
     }
 
-    public function testFillWithAttributId() {
+    public function testFillWithAttributId()
+    {
         // GIVEN Un objet TableTest()
         $tableTest = new TableTest();
         try {
@@ -108,7 +120,8 @@ class TestsTable extends TestCase
         }
     }
 
-    public function testsaveOnNoExist() {
+    public function testsaveOnNoExist()
+    {
         // GIVEN Un utilisateur n'ayant pas encore été enregistrer dans la base de données avec des données pré enregistrer
         $test = new TableTest();
         $test->fill([
@@ -127,7 +140,7 @@ class TestsTable extends TestCase
         // THEN L'utilisateur est enregistrer dans la base de données
         $insertedTest = $this->pdo->query("SELECT nomTest,description,id FROM tests WHERE id = 2");
         $tab = $insertedTest->fetch();
-        assertEquals($test->toArray(),$tab);
+        assertEquals($test->toArray(), $tab);
     }
 
 
@@ -140,7 +153,7 @@ class TestsTable extends TestCase
         // WHEN On appelle la méthode save
         $test->save();
         // THEN Les données de l'utilisateur sont mises a jour.
-        $insertedTest = $this->pdo->query("SELECT nomTest FROM tests WHERE nomTest = 'testSaveOnExist'" );
-        assertEquals($test->toArray(),$insertedTest->fetch());
+        $insertedTest = $this->pdo->query("SELECT nomTest FROM tests WHERE nomTest = 'testSaveOnExist'");
+        assertEquals($test->toArray(), $insertedTest->fetch());
     }
 }

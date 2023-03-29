@@ -4,12 +4,13 @@ require_once 'services/homeservice.php';
 require_once 'services/donneesservice.php';
 require_once 'controllers/homecontroller.php';
 require_once 'services/moodservice.php';
-use services\moodservice;
+
 use PDO;
 use PDOStatement;
 use PHPUnit\Framework\TestCase;
-use services\homeservice;
 use services\donneesservice;
+use services\homeservice;
+use services\moodservice;
 use yasmf\HttpHelper;
 
 

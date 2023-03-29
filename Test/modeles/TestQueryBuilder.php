@@ -1,16 +1,19 @@
 <?php
+
+namespace modeles;
 require_once 'yasmf/datasource.php';
 
+use DataBase;
 use Models\Table;
-use PHPUnit\Framework\TestCase;
-use yasmf\DataSource;
-use services\Mood;
 use Models\User;
+use PHPUnit\Framework\TestCase;
+use services\Mood;
+use function PHPUnit\Framework\assertEquals;
+
 require_once 'Test/DataBase.php';
 require_once 'Modeles/Table.php';
 require_once 'Modeles/QueryBuilder.php';
-use function PHPUnit\Framework\assertEquals;
-use Modeles\QueryBuilder;
+
 class TestQueryBuilder extends TestCase
 {
     private $pdo;
@@ -18,7 +21,7 @@ class TestQueryBuilder extends TestCase
 
     protected function setUp(): void
     {
-        $this->pdo =  DataBase::getPDOTest();
+        $this->pdo = DataBase::getPDOTest();
         $this->pdo->beginTransaction();
         QueryBuilder::setDBSource($this->pdo);
     }
@@ -29,17 +32,19 @@ class TestQueryBuilder extends TestCase
     }
 
 
-    public function testUpdate1Argument() {
+    public function testUpdate1Argument()
+    {
         // GIVEN Un objet QueryBuilder sur la table 'utilisateur' sur lequel
         // on demande de construire une requete de type UPDATE
-         $query = QueryBuilder::Table('utilisateur')
-                  ->update(['nom' => 'Medard']);
+        $query = QueryBuilder::Table('utilisateur')
+            ->update(['nom' => 'Medard']);
         // EXCEPTED On obtient la requete attendue
         $qStmt = $query->getQuery();
-        assertEquals("UPDATE utilisateur SET nom = :nom",$qStmt);
+        assertEquals("UPDATE utilisateur SET nom = :nom", $qStmt);
     }
 
-    public function testUpdateMultipleArgument() {
+    public function testUpdateMultipleArgument()
+    {
         // GIVEN Un objet QueryBuilder sur la table 'utilisateur' sur lequel
         // on demande de construire une requete de type UPDATE
         $query = QueryBuilder::Table('utilisateur')
@@ -49,78 +54,86 @@ class TestQueryBuilder extends TestCase
                 'identifiant' => 'guigui'
             ]);
         // EXCEPTED On obtient la requete attendue
-        assertEquals("UPDATE utilisateur SET nom = :nom,prenom = :prenom,identifiant = :identifiant",$query->getQuery());
+        assertEquals("UPDATE utilisateur SET nom = :nom,prenom = :prenom,identifiant = :identifiant", $query->getQuery());
     }
 
-    public function testInsert() {
+    public function testInsert()
+    {
         // GIVEN Un objet QureyBuilder sur la table 'utilisateur' sur lequel
         // on demande de construire une requete de type INSERT
         $query = QueryBuilder::Table('utilisateur')->insert(['nom' => 'Medard']);
         // EXCEPTED On obtient la requete attendue
         $qStmt = $query->getQuery();
-        assertEquals("INSERT INTO utilisateur (nom) VALUES (:nom)",$qStmt);
+        assertEquals("INSERT INTO utilisateur (nom) VALUES (:nom)", $qStmt);
     }
 
 
-    public function testSelectWithNoArgument() {
+    public function testSelectWithNoArgument()
+    {
         // GIVEN Un objet QueryBuilder sur la table 'utilisateur' sans methode select appeler
         $queryWithoutSelectMethod = QueryBuilder::Table('utilisateur')->getQuery();
         // et un objet QueryBuilder sur la table 'utilisateur' avec la methode select sans argument.
         $queryWithSelectWithoutArguments = QueryBuilder::Table('utilisateur')->select()->getQuery();
         // EXCEPTED Les requetes des deux objet sont égales
-        assertEquals($queryWithSelectWithoutArguments,$queryWithoutSelectMethod);
+        assertEquals($queryWithSelectWithoutArguments, $queryWithoutSelectMethod);
         // Et correspondent a la requete attendu
-        assertEquals("SELECT * FROM utilisateur",$queryWithoutSelectMethod);
+        assertEquals("SELECT * FROM utilisateur", $queryWithoutSelectMethod);
     }
 
-    public function testSelectWithArguments() {
+    public function testSelectWithArguments()
+    {
         // GIVEN Un objet QueryBuilder sur la table 'utilisateur' en ayant spécifier
         // plusieurs colonnes avec la méthode select
-        $query = QueryBuilder::Table('utilisateur')->select('nom','prenom','pseudo');
+        $query = QueryBuilder::Table('utilisateur')->select('nom', 'prenom', 'pseudo');
         // WHEN  On appeles la méthode getQuery
         $qStmt = $query->getQuery();
         // THEN  On obtient la requête sql correspondante
-        assertEquals("SELECT nom,prenom,pseudo FROM utilisateur",$qStmt);
+        assertEquals("SELECT nom,prenom,pseudo FROM utilisateur", $qStmt);
     }
 
-    public function testWhere() {
+    public function testWhere()
+    {
         // GIVEN Un objet QueryBuilder sur lequel on appele la méthode where
-        $query = QueryBuilder::Table('utilisateur')->where("prenom","Guillaume");
+        $query = QueryBuilder::Table('utilisateur')->where("prenom", "Guillaume");
         // WHEN  on appeles la méthode getParams
         $params = $query->getParams();
         // THEN  on récupère les paramètres précédement donner
-        assertEquals(['prenom' => 'Guillaume'],$params);
+        assertEquals(['prenom' => 'Guillaume'], $params);
         // Et on obtient la requete correspondante
-        assertEquals("SELECT * FROM utilisateur WHERE prenom = :prenom",$query->getQuery());
+        assertEquals("SELECT * FROM utilisateur WHERE prenom = :prenom", $query->getQuery());
     }
 
-    public function testWhereUpdate() {
+    public function testWhereUpdate()
+    {
         // GIVEN Un objet QueryBuilder sur lequel on appele la méthode where puis la methode update
         $query = QueryBuilder::Table('utilisateur')
-            ->where("prenom","Guillaume")->update(['nom' => 'Medard']);
+            ->where("prenom", "Guillaume")->update(['nom' => 'Medard']);
         // WHEN  on appeles la méthode getParams
         $params = $query->getParams();
         // THEN  on récupère les paramètres précédement donner
-        assertEquals(['prenom' => 'Guillaume','nom' => 'Medard'],$params);
+        assertEquals(['prenom' => 'Guillaume', 'nom' => 'Medard'], $params);
         // Et on obtient la requete correspondante
-        assertEquals("UPDATE utilisateur SET nom = :nom WHERE prenom = :prenom",$query->getQuery());
+        assertEquals("UPDATE utilisateur SET nom = :nom WHERE prenom = :prenom", $query->getQuery());
     }
+
     // TODO Corriger le QueryBuilder
-    public function test2WhereWithSameName() {
+    public function test2WhereWithSameName()
+    {
         // GIVEN Un objet QueryBuilder sur lequel on appele
         // la méthode where deux fois en spécifiant la même colonne
         $query = QueryBuilder::Table('utilisateur')
-                 ->where("prenom","Guillaume")
-                 ->where("prenom","Clement");
+            ->where("prenom", "Guillaume")
+            ->where("prenom", "Clement");
         // WHEN  on appeles la méthode getParams
         $params = $query->getParams();
         // THEN  on récupère les paramètres précédement donner
-        assertEquals(['prenom' => 'Guillaume','prenom' => 'Clement'],$params);
+        assertEquals(['prenom' => 'Guillaume', 'prenom' => 'Clement'], $params);
         // Et on obtient la requete correspondante en différentient les clés
-        assertEquals("SELECT * FROM utilisateur WHERE prenom = :prenom1 AND prenom = :prenom2",$query->getQuery());
+        assertEquals("SELECT * FROM utilisateur WHERE prenom = :prenom1 AND prenom = :prenom2", $query->getQuery());
     }
 
-    public function testInsertExecute() {
+    public function testInsertExecute()
+    {
         // GIVEN Un objet QureyBuilder sur la table 'utilisateur' sur lequel
         $tab = [
             'nom' => 'Medard',
@@ -134,6 +147,6 @@ class TestQueryBuilder extends TestCase
             ->insert($tab)->execute();
         /* EXCEPTED On obtient la requete attendue */
         $result = $this->pdo->query("SELECT nom,prenom,identifiant,mail,motDePasse FROM utilisateur where identifiant = 'guigui'");
-        assertEquals($result->fetch(),$tab);
+        assertEquals($result->fetch(), $tab);
     }
 }

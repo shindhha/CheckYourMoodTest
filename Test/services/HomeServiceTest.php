@@ -1,18 +1,23 @@
-<?php 
+<?php
+
+namespace services;
 require_once 'services/HomeService.php';
 require_once 'yasmf/datasource.php';
 require_once 'Test/DataBase.php';
 require_once 'Modeles/QueryBuilder.php';
-use services\HomeService;
-use PHPUnit\Framework\TestCase;
+
+use DataBase;
 use Modeles\QueryBuilder;
+use PHPUnit\Framework\TestCase;
+use PDOStatement;
 class HomeServiceTest extends TestCase
 {
     private $pdo;
     private $service;
+
     protected function setUp(): void
     {
-        $this->pdo =  DataBase::getPDOTest();
+        $this->pdo = DataBase::getPDOTest();
         $this->pdo->beginTransaction();
         $this->service = HomeService::getDefaultHomeService();
         QueryBuilder::setDBSource($this->pdo);
@@ -23,8 +28,9 @@ class HomeServiceTest extends TestCase
         $this->pdo->rollBack();
     }
 
-    public function testConnexionSucces(){
-        
+    public function testConnexionSucces()
+    {
+
 
         $idUtil = 'idTest1';
         $mdpUtil = 'test';
@@ -36,19 +42,20 @@ class HomeServiceTest extends TestCase
 
         ];
         $result = $this->service->connexion($this->pdo, $idUtil, $mdpUtil);
-        
-        $this->assertEquals($expectedResult,$result);
+
+        $this->assertEquals($expectedResult, $result);
     }
 
-    public function test() {
+    public function test()
+    {
         $query = QueryBuilder::Table('utilisateur')
-            ->select('codeUtil','prenom','nom','mail')
-            ->where('identifiant',"identifiant")
-            ->where('motDePasse',md5("mdpUtil"));
+            ->select('codeUtil', 'prenom', 'nom', 'mail')
+            ->where('identifiant', "identifiant")
+            ->where('motDePasse', md5("mdpUtil"));
 
-        $this->assertEquals(['identifiant' => 'identifiant','motDePasse'=>md5("mdpUtil")],$query->getParams());
-        $this->assertEquals("SELECT codeUtil,prenom,nom,mail FROM utilisateur WHERE identifiant = :identifiant AND motDePasse = :motDePasse",$query->getQuery());
-        $this->assertInstanceOf(PDOStatement::class,$query->execute());
+        $this->assertEquals(['identifiant' => 'identifiant', 'motDePasse' => md5("mdpUtil")], $query->getParams());
+        $this->assertEquals("SELECT codeUtil,prenom,nom,mail FROM utilisateur WHERE identifiant = :identifiant AND motDePasse = :motDePasse", $query->getQuery());
+        $this->assertInstanceOf(PDOStatement::class, $query->execute());
     }
 }
 

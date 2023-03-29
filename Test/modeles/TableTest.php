@@ -1,10 +1,12 @@
 <?php
+
+namespace modeles;
 require_once 'Modeles/Table.php';
-use Modeles\Table;
+
 class TableTest extends Table
 {
     protected $tableName = "tests";
-    protected $fillable = ['nomTest','description','id'];
+    protected $fillable = ['nomTest', 'description', 'id'];
 
     public function __construct($id = 0)
     {

@@ -1,23 +1,23 @@
 <?php
+
+namespace controllers;
 require_once 'yasmf/datasource.php';
 require_once 'services/donneesservice.php';
 require_once 'Test/DataBase.php';
 require_once 'services/moodservice.php';
-require_once 'services/inscriptionservice.php';
 require_once 'controllers/inscriptioncontroller.php';
-use services\DonneesService;
-use PHPUnit\Framework\TestCase;
-use yasmf\DataSource;
-use PHPUnit\Framework;
+
+use DataBase;
+use Modeles;
 use yasmf\View;
-use function PHPUnit\Framework\assertEquals;
-use function PHPUnit\Framework\assertTrue;
-use services\MoodService;
+use PDOException;
+
 class InscriptionControllerTest extends \PHPUnit\Framework\TestCase
 {
     private $pdo;
     private $inscriptioncontroller;
     private $user;
+
     protected function setUp(): void
     {
         $this->pdo = DataBase::getPDOTest();
@@ -33,7 +33,8 @@ class InscriptionControllerTest extends \PHPUnit\Framework\TestCase
         $this->pdo->rollBack();
     }
 
-    public function testInscriptionSuccess() {
+    public function testInscriptionSuccess()
+    {
 
         // GIVEN des valeurs entrer par l'utilisateur valides
         $_POST['identifiant'] = "test";
@@ -43,13 +44,14 @@ class InscriptionControllerTest extends \PHPUnit\Framework\TestCase
         $_POST['prenom'] = "test";
         // Et un objet user qui s'enregistre correctement dans la base de données.
         // WHEN On appelle la fonction siging du controller d'inscription
-        $returnedView = $this->inscriptioncontroller->signin($this->pdo,$this->user);
+        $returnedView = $this->inscriptioncontroller->signin($this->pdo, $this->user);
         // THEN L'inscription est valider et on arrive sur la page de connexion
         $expectedView = new View("check-your-mood/views/connexion");
-        self::assertEquals($expectedView,$returnedView);
+        self::assertEquals($expectedView, $returnedView);
     }
 
-    public function testEmptyUsersValues() {
+    public function testEmptyUsersValues()
+    {
         // GIVEN des valeurs entrer par l'utilisateur valides sauf une vide
         $_POST['identifiant'] = "test";
         $_POST['motdepasse'] = "";
@@ -58,13 +60,14 @@ class InscriptionControllerTest extends \PHPUnit\Framework\TestCase
         $_POST['prenom'] = "test";
         // Et un objet user qui s'enregistre correctement dans la base de données.
         // WHEN On appelle la fonction siging du controller d'inscription
-        $returnedView = $this->inscriptioncontroller->signin($this->pdo,$this->user);
+        $returnedView = $this->inscriptioncontroller->signin($this->pdo, $this->user);
         // THEN L'inscription est n'est pas lancer et on revien sur la page d'inscription
         $expectedView = new View("check-your-mood/views/inscription");
-        self::assertEquals($expectedView,$returnedView);
+        self::assertEquals($expectedView, $returnedView);
     }
 
-    public function testErrorFromService() {
+    public function testErrorFromService()
+    {
         // GIVEN des valeurs entrer par l'utilisateur valides
         $_POST['identifiant'] = "test";
         $_POST['motdepasse'] = "test";
@@ -74,10 +77,10 @@ class InscriptionControllerTest extends \PHPUnit\Framework\TestCase
         // Et un objet user qui propage une exception en essayant de s'enregistrer dans la base de données.
         $this->user->method("save")->willThrowException(new PDOException());
         // WHEN On appelle la fonction siging du controller d'inscription
-        $returnedView = $this->inscriptioncontroller->signin($this->pdo,$this->user);
+        $returnedView = $this->inscriptioncontroller->signin($this->pdo, $this->user);
         // THEN L'inscription est n'est pas lancer et on revien sur la page d'inscription
         $expectedView = new View("check-your-mood/views/inscription");
-        self::assertEquals($expectedView,$returnedView);
+        self::assertEquals($expectedView, $returnedView);
     }
 
 
