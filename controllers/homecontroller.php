@@ -14,12 +14,20 @@ class HomeController {
     private $DonneesService;
     private $MoodService;
 
-    public function __construct()
+    public function __construct($DonneesService=null, $HomeService=null, $MoodService=null)
     {
-        $this->HomeService = HomeService::getDefaultHomeService();
-        $this->DonneesService = DonneesService::getDefaultDonneesService();
-        $this->MoodService = MoodService::getDefaultMoodService();
+        if ($DonneesService == null){
+            $DonneesService = DonneesService::getDefaultDonneesService();
+            $homeService = HomeService::getDefaultHomeService();
+            $moodService = MoodService::getDefaultMoodService();
+        }else{
+            $this->DonneesService = $DonneesService;
+            $this->HomeService = $HomeService;
+            $this->MoodService = $MoodService;
+        }
+
     }
+
 
     //Fonction de connection
     public function login($pdo){
@@ -63,7 +71,7 @@ class HomeController {
         $humeurs = $this->DonneesService->viewMoodsPagination($pdo, $infos['util'], $premier, $parPage);
 
         //Création de la vue et set vraiable
-        $view = new View("pink-check-your-mood-pink1/views/humeurs");
+        $view = new View("check-your-mood/views/humeurs");
         $view->setVar('humeurs',$humeurs);
         $view->setVar('libelles',$libelles);
         $view->setVar('updateOk',true);
@@ -81,7 +89,7 @@ class HomeController {
 
     public function index() {
 
-        $view = new View("pink-checkyourmood-pink1/views/accueil");
+        $view = new View("check-your-mood/views/accueil");
         return $view;
     }
 

@@ -1,2 +1,4 @@
 vendor
-composer.*
+*.old
+index.php
+.phpunit.result.cache

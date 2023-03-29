@@ -14,12 +14,20 @@ class DonneesController {
     private $MoodService;
     private $visualisationService;
 
-    public function __construct()
+    public function __construct($DonneesService = null,$MoodService = null,$visualisationService = null)
     {
-        $this->DonneesService = DonneesService::getDefaultDonneesService();
-        $this->MoodService = MoodService::getDefaultMoodService(); 
-        $this->visualisationService = VisualisationService::getDefaultVisualisationService();
+        if($DonneesService == null){
+            $this->DonneesService = DonneesService::getDefaultDonneesService();
+            $this->MoodService = MoodService::getDefaultMoodService();
+            $this->visualisationService = VisualisationService::getDefaultVisualisationService();
+        }else{
+            $this->DonneesService = $DonneesService;
+            $this->MoodService = $MoodService;
+            $this->visualisationService = $visualisationService;
+        }
+
     }
+
 
     public function goToMood($pdo){
 
