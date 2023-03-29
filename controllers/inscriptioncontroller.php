@@ -9,9 +9,13 @@ class InscriptionController {
 
     private $inscriptionService;
 
-    public function __construct()
+    public function __construct($inscriptionService = null)
     {
-        $this->inscriptionService = InscriptionService::getDefaultInscriptionService();
+        if ($inscriptionService === null) {
+            $this->inscriptionService = InscriptionService::getDefaultInscriptionService();
+        } else {
+            $this->inscriptionService = $inscriptionService;
+        }
     }
 
     //
