@@ -38,7 +38,7 @@ class HumeurServiceTest extends TestCase
 
     public function testInsertMoodFailed()
     {
-        // Préparer les données de test
+        // Préparer les données de TestControllers
 
         $code = 0;//humeur invalide
         $date = '2023-14-01';
@@ -57,15 +57,15 @@ class HumeurServiceTest extends TestCase
         $this->assertEquals("nOk", $result);
 
     }
-    // A revoir test non fonctionnelle
+    // A revoir TestControllers non fonctionnelle
     public function testInsertMoodSuccess()
     {
-        // Préparer les données de test
+        // Préparer les données de TestControllers
         $code = 22;
         $date = date("Y-m-d");
         $heureActuelle = date("H");
         $heure = date("H", strtotime("-1 hour", $heureActuelle));
-        $contexte = 'test success';
+        $contexte = 'TestControllers success';
         $util = 1;
        
         // Appeler la fonction à tester
@@ -78,7 +78,7 @@ class HumeurServiceTest extends TestCase
 
     public function testViewMoods()
     {
-        // Préparer les données de test
+        // Préparer les données de TestControllers
         $idUtil = 1;
 
         // Appeler la fonction à tester
@@ -91,7 +91,7 @@ class HumeurServiceTest extends TestCase
 
     public function testViewMoodsWithNoMoods()
     {
-        // Préparer les données de test
+        // Préparer les données de TestControllers
 
         $idUtil = 2 ;
         // Appeler la fonction à tester

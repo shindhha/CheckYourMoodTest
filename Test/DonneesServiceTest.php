@@ -117,7 +117,7 @@ class DonneesServiceTest extends TestCase
 
     }
 
-    // Ce test n'est pas passé ( Cause appel du Trigger pour modifier le contexte sous 24h)
+    // Ce TestControllers n'est pas passé ( Cause appel du Trigger pour modifier le contexte sous 24h)
     public function testUpdateHumeurSuccess() {
 
 
@@ -149,7 +149,7 @@ class DonneesServiceTest extends TestCase
             'contexte' => "Happy"
         ];
         $expectedResult = false;
-        // Appelez la méthode à tester avec les données de test
+        // Appelez la méthode à tester avec les données de TestControllers
         $result = $this->services->updateHumeur($this->pdo, $tab);
 
         // Assurez-vous que les résultats de la méthode sont ceux que vous attendez
@@ -177,6 +177,7 @@ class DonneesServiceTest extends TestCase
         // THEN Le mot de passe est crypté en md5 puis enregistrer dans la base de données
         $content = $this->pdo->query("SELECT motDePasse FROM utilisateur WHERE codeUtil = " . $idUtil);
         $mdpModifier = $content->fetchColumn();
+
         assertTrue($result);
         $this->assertEquals($exceptedMDP, $mdpModifier);
     }

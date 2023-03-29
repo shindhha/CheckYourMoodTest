@@ -23,7 +23,7 @@ class InscriptionTest extends TestCase
     }
     public function testInscriptionSucces(){
 
-        $randomId = "test";
+        $randomId = "TestControllers";
         $mdp = "password";
         $mail ="amine.d2amouch@gmail.com";
         $nom = "daamouch";
