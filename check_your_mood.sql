@@ -3152,7 +3152,7 @@ CREATE TABLE `utilisateur` (
 --
 
 INSERT INTO `utilisateur` (`codeUtil`, `prenom`, `nom`, `identifiant`, `mail`, `motDePasse`) VALUES
-(1, 'Jules', 'Blanchard', 'jules22b', 'jules.blanchard@iut-rodez.fr', '63a9f0ea7bb98050796b649e85481845');
+(1, 'Jules', 'Blanchard', 'jules22b', 'jules.blanchard@iut-rodez.fr', MD5('test'));
 
 --
 -- Index pour les tables exportées

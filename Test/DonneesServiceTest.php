@@ -30,10 +30,6 @@ class DonneesServiceTest extends TestCase
         $this->pdo->rollBack();
     }
 
-    protected function tearDown(): void
-    {
-        $this->pdo->rollBack();
-    }
 
 
     public function testsUpdateDataSucces()

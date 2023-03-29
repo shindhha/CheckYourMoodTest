@@ -1,10 +1,11 @@
 <?php
 
 namespace Modeles;
-
+require_once 'Modeles/QueryBuilder.php';
 
 use http\Exception\InvalidArgumentException;
-use http\Exception\UnexpectedValueException;
+use UnexpectedValueException;
+use Modeles\QueryBuilder;
 
 /**
  * Etendre un objet par cette classe permet d'interagir avec la base de données
@@ -19,15 +20,17 @@ class Table
 {
     protected $tableName;
     protected $fillable;
-    protected $primaryKey;
-    private $id;
-
+    protected $primaryKey = "id";
+    private $tableIdWithComplexeNameToPreventFromUnExceptedAssignmentByMethodFill;
     protected function __construct($id = 0)
     {
         if ($id < 0) {
             throw new InvalidArgumentException("L'id ne peut pas être inférieure à 0");
         }
-        $this->id = $id;
+        if (array_key_exists($this->getIdKeyName(),$this->fillable)) {
+            throw new UnexpectedValueException("Il est interdit d'utiliser une cle avec se nom");
+        }
+        $this->setId($id);
     }
 
     /**
@@ -38,12 +41,12 @@ class Table
      *         vaut 1
      */
     public function fetch(...$column) {
-        if ($this->id == 0) {
+        if ($this->getId() == 0) {
            throw new UnexpectedValueException("Aucune ligne ne peut avoir l'id 0 !");
         }
         $dataValues = Queries::Table($this->tableName)
             ->select($column)
-            ->where($this->primaryKey,$this->id)
+            ->where($this->primaryKey,$this->getId())
             ->execute()->fetch();
         // puis on initialise les attributs de l'objet aux valeurs de la base
         foreach ($dataValues as $keys => $value) {
@@ -60,6 +63,9 @@ class Table
      *               sous forme d'un tableau ['clef' => 'valeur' , ...]
      */
     public function fill($values) {
+        if (array_key_exists($this->getIdKeyName(),$values)) {
+            throw new UnexpectedValueException("Il est interdit d'utiliser une cle avec se nom");
+        }
         foreach ($this->fillable as $keys) {
             $this->$keys = $values[$keys];
         }
@@ -100,11 +106,11 @@ class Table
      */
     public function save() {
         $q = QueryBuilder::Table($this->tableName);
-        if ($this->id == 0) {
-            $this->id = $q->insert($this->toArray());
+        if ($this->getId() == 0) {
+            $this->setId($q->insert($this->toArray())->execute());
         } else {
-            $queries = $q->where($this->primaryKey,$this->id)
-                       ->update($this->toArray());
+            $queries = $q->where($this->primaryKey,$this->getId())
+                       ->update($this->toArray())->execute();
         }
     }
 
@@ -120,7 +126,15 @@ class Table
     }
     public function getId()
     {
-        return $this->id;
+        return $this->tableIdWithComplexeNameToPreventFromUnExceptedAssignmentByMethodFill;
+    }
+
+    private function setId($value) {
+        $this->tableIdWithComplexeNameToPreventFromUnExceptedAssignmentByMethodFill = $value;
+    }
+
+    private function getIdKeyName() {
+        return "tableIdWithComplexeNameToPreventFromUnExceptedAssignmentByMethodFill";
     }
     public function getTableName() {
         return $this->tableName;

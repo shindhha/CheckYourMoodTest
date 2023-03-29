@@ -1,9 +1,10 @@
 CREATE TABLE Tests (
     id INTEGER PRIMARY KEY,
     nomTest VARCHAR(255),
-    dateTest DATE
+    dateTest DATE,
+    description blob
 );
-
+INSERT INTO tests (id,nomTest) VALUES (1,'testDejaPresent');
 CREATE TABLE `humeur` (
                           `codeHumeur` int(11) NOT NULL,
                           `libelle` int(2) NOT NULL,

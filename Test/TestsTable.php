@@ -1,13 +1,30 @@
 <?php
 require_once 'Modeles/Table.php';
 require_once 'Test/TableTest.php';
+require_once 'Test/DataBase.php';
+require_once 'Modeles/QueryBuilder.php';
+
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework;
 use function PHPUnit\Framework\assertEquals;
 use function PHPUnit\Framework\assertTrue;
+use Modeles\QueryBuilder;
 class TestsTable extends TestCase
 {
+    private $pdo;
+    private $services;
 
+    protected function setUp(): void
+    {
+        $this->pdo =  DataBase::getPDOTest();
+        $this->pdo->beginTransaction();
+        QueryBuilder::setDBSource($this->pdo);
+    }
+
+    protected function tearDown(): void
+    {
+        $this->pdo->rollBack();
+    }
     public function testFillOnValidData() {
         // GIVEN Une table avec les colonnes ['nomTest','dateTest']
         $tableTest = new TableTest();
@@ -78,30 +95,52 @@ class TestsTable extends TestCase
         assertEquals(['nomTest' => 'Test toArray','description' => $description],$tableTest->toArray());
     }
 
+    public function testFillWithAttributId() {
+        // GIVEN Un objet TableTest()
+        $tableTest = new TableTest();
+        try {
+            // WHEN On fill avec une cle qui s'apelle 'tableIdWithComplexeNameToPreventFromUnExceptedAssignmentByMethodFill'
+            $tableTest->fill(['tableIdWithComplexeNameToPreventFromUnExceptedAssignmentByMethodFill' => 'test']);
+            assertTrue(false);
+        } catch (UnexpectedValueException $e) {
+            // THEN Une Exception est propager
+            assertTrue(true);
+        }
+    }
+
     public function testsaveOnNoExist() {
         // GIVEN Un utilisateur n'ayant pas encore été enregistrer dans la base de données avec des données pré enregistrer
         $test = new TableTest();
         $test->fill([
-            "nomTest" => "testsaveOnNoExist",
-            "description" => "test"
+            "nomTest" => "test",
+            "description" => "test",
+            "id" => 2
         ]);
         // WHEN On appelle la méthode save
-        $test->save();
+        try {
+            $test->save();
+            assertTrue(true);
+        } catch (PDOException $e) {
+            assertTrue(false);
+        }
+
         // THEN L'utilisateur est enregistrer dans la base de données
-        $insertedTest = $this->pdo->query("SELECT * FROM Tests WHERE id = " . $test->getId() )->fetch();
-        assertEquals($test->toArray(),$insertedTest);
+        $insertedTest = $this->pdo->query("SELECT nomTest,description,id FROM tests WHERE id = 2");
+        $tab = $insertedTest->fetch();
+        assertEquals($test->toArray(),$tab);
     }
+
 
     public function testSaveOnExist()
     {
         // GIVEN Un utilisateur ayant déjà été enregistrer dans la base de données dans un état.
         // Et avec des attributs d'objet différent.
         $test = new TableTest(1);
-        $test->motDePasse = md5('nouveauMDP');
+        $test->nomTest = 'testSaveOnExist';
         // WHEN On appelle la méthode save
-        $test-save();
+        $test->save();
         // THEN Les données de l'utilisateur sont mises a jour.
-        $insertedTest = $this->pdo->query("SELECT * FROM Tests WHERE id = " . $test->getId() )->fetch();
-        assertEquals($test->toArray(),$insertedTest);
+        $insertedTest = $this->pdo->query("SELECT nomTest FROM tests WHERE nomTest = 'testSaveOnExist'" );
+        assertEquals($test->toArray(),$insertedTest->fetch());
     }
 }

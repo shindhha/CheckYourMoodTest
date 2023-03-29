@@ -1,6 +1,9 @@
 <?php
 namespace controllers;
+require_once 'services/donneesservice.php';
+require_once 'services/HomeService.php';
 
+use Modeles\QueryBuilder;
 use services\HomeService;
 use services\MoodService;
 use services\DonneesService;
@@ -10,20 +13,20 @@ use yasmf\View;
 
 class HomeController {
 
-    private $HomeService;
-    private $DonneesService;
-    private $MoodService;
+    private $homeService;
+    private $donneesService;
+    private $moodService;
 
-    public function __construct($DonneesService=null, $HomeService=null, $MoodService=null)
+    public function __construct($donneesService = null, $homeService = null, $moodService = null)
     {
-        if ($DonneesService == null){
-            $DonneesService = DonneesService::getDefaultDonneesService();
-            $homeService = HomeService::getDefaultHomeService();
-            $moodService = MoodService::getDefaultMoodService();
-        }else{
-            $this->DonneesService = $DonneesService;
-            $this->HomeService = $HomeService;
-            $this->MoodService = $MoodService;
+        if ($donneesService == null){
+            $this->donneesService = DonneesService::getDefaultDonneesService();
+            $this->homeService = HomeService::getDefaultHomeService();
+            $this->moodService = MoodService::getDefaultMoodService();
+        } else {
+            $this->donneesService = $donneesService;
+            $this->homeService = $homeService;
+            $this->moodService = $moodService;
         }
 
     }
@@ -31,16 +34,15 @@ class HomeController {
 
     //Fonction de connection
     public function login($pdo){
+        QueryBuilder::setDBSource($pdo);
         $id = htmlspecialchars(HttpHelper::getParam('identifiant'));
         $mdp = htmlspecialchars(HttpHelper::getParam('motdepasse'));
-        $infos = $this->HomeService->connexion($pdo,$id,$mdp);
+        $infos = $this->homeService->connexion($pdo,$id,$mdp);
 
         if($infos['util'] == 0){
-            
             $view = new View("check-your-mood/views/connexion");
             return $view;
         }
-			
 		// Stockage dans la session //
         foreach($infos as $key => $value){
             $_SESSION["$key"] = $value;
