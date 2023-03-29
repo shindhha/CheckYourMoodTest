@@ -146,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
 
                 TextView icon = new TextView(this);
                 int idEmotion = humeur.getInt("libelle");
-                icon.setText(Emotions.getEmotion(idEmotion).getString("emoji"));
+                icon.setText(Emotion.getEmotionFromId(idEmotion).getEmoji());
                 icon.setLayoutParams(lp);
 
                 TextView date = new TextView(this);
@@ -179,15 +179,8 @@ public class MainActivity extends AppCompatActivity {
         List<String> emotionsList = new ArrayList<>();
         int i = 0;
 
-        Emotions.getEmotions().forEach((id, jsonObj) -> {
-            String libelle;
-            try {
-                libelle = jsonObj.getString("emoji") + " - " + jsonObj.getString("nom");
-            } catch (JSONException e) {
-                libelle = "Erreur de chargement de l'émotion";
-            }
-
-            emotionsList.add(libelle);
+        Emotion.getEmotions().forEach((emotion) -> {
+            emotionsList.add(emotion.toString());
         });
 
         String[] emotionsArray = emotionsList.toArray(new String[0]);
@@ -250,7 +243,10 @@ public class MainActivity extends AppCompatActivity {
 
         // Récupérations des informations
         String commentaire = ((EditText) findViewById(R.id.description_humeur)).getText().toString().trim();
-        int idEmotion = ((Spinner) findViewById(R.id.spinner_emotion)).getSelectedItemPosition() + 1;
+
+        int idEmotion = ((Spinner) findViewById(R.id.spinner_emotion)).getSelectedItemPosition();
+        idEmotion = Emotion.getIdFromEmotion(Emotion.getEmotions().get(idEmotion));
+
         String dateStr = DateFormatter.getApiDate(date);
         String heureStr = DateFormatter.getApiTime(date);
 

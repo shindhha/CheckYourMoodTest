@@ -83,7 +83,7 @@ public class ApiCYMD {
                 null,
                 Request.Method.GET,
                 (JSONArray response) -> {
-                    Emotions.loadEmotion(response);
+                    Emotion.loadEmotions(response);
                     MainActivity.getContext().loadSpinnerHumeurs();
 
                     // Les émotions sont chargées, on peut maintenant obtenir les humeurs de l'utilisateur
