@@ -21,5 +21,15 @@
     <string name="mot_de_passe">Mot de passe :</string>
     <string name="connexion">Connexion</string>
 
+    <!-- Strings pour les toasts -->
+    <string name="toast_erreur_fatal">Erreur : impossible de joindre le serveur distant</string>
+    <string name="toast_erreur_inconnue">Erreur inconnue.</string>
+
+    <string name="toast_erreur_creds_vide">Erreur : identifiant / mot de passe vide</string>
+    <string name="toast_erreur_generic">Erreur : %1$s</string>
+    <string name="toast_erreur_date_heure_invalide">L\'heure entrée ne rentre pas dans l\'intervalle autorisé de 24h</string>
+
+    <string name="toast_success_humeur">Humeur postée !</string>
+
 
 </resources>

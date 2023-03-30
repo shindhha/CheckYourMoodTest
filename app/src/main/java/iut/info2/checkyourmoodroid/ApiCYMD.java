@@ -19,6 +19,21 @@ public class ApiCYMD {
     private static String api_key = null;
 
 
+    private static void gestionErreurBase(VolleyError error) {
+        if (error.networkResponse == null) {
+            Toast.makeText(MainActivity.getContext(), MainActivity.getContext().getString(R.string.toast_erreur_fatal), Toast.LENGTH_LONG).show();
+        } else {
+            try {
+                JSONObject errorJSON = new JSONObject(new String(error.networkResponse.data));
+                Toast.makeText(MainActivity.getContext(), MainActivity.getContext().getString(R.string.toast_erreur_generic, errorJSON.getString("message")), Toast.LENGTH_LONG).show();
+            } catch (JSONException e) {
+                // Impossible de récupérer le message d'erreur, on affiche un message par défaut
+                Toast.makeText(MainActivity.getContext(), MainActivity.getContext().getString(R.string.toast_erreur_inconnue), Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+
     /**
      * Méthode permettant de se connecter à l'API et de fermer la fenêtre de connexion
      * @param login Le login de l'utilisateur
@@ -42,10 +57,7 @@ public class ApiCYMD {
                         System.out.println("ERREUR : " + e.getMessage());
                     }
                 },
-                (VolleyError error) -> {
-                    Toast.makeText(MainActivity.getContext(), "Erreur de connexion", Toast.LENGTH_SHORT).show();
-                    System.out.println("ERREUR : " + error.getMessage());
-                }
+                ApiCYMD::gestionErreurBase
         );
     }
 
@@ -69,10 +81,7 @@ public class ApiCYMD {
                 (JSONObject response) -> {
                     MainActivity.getContext().displayUserInfos(response);
                 },
-                (VolleyError error) -> {
-                    Toast.makeText(MainActivity.getContext(), "Erreur de connexion", Toast.LENGTH_SHORT).show();
-                    System.out.println("ERREUR : " + error.getMessage());
-                }
+                ApiCYMD::gestionErreurBase
         );
 
         // ---- Obtention de la liste des émotions de la DB ----
@@ -89,10 +98,7 @@ public class ApiCYMD {
                     // Les émotions sont chargées, on peut maintenant obtenir les humeurs de l'utilisateur
                     getUserHumeurs();
                 },
-                (VolleyError error) -> {
-                    Toast.makeText(MainActivity.getContext(), "Erreur de connexion", Toast.LENGTH_SHORT).show();
-                    System.out.println("ERREUR : " + error.getMessage());
-                }
+                ApiCYMD::gestionErreurBase
         );
     }
 
@@ -116,10 +122,7 @@ public class ApiCYMD {
                 (JSONArray response) -> {
                     MainActivity.getContext().displayHumeurs(response);
                 },
-                (VolleyError error) -> {
-                    Toast.makeText(MainActivity.getContext(), "Erreur de connexion", Toast.LENGTH_SHORT).show();
-                    System.out.println("ERREUR : " + error.getMessage());
-                }
+                ApiCYMD::gestionErreurBase
         );
     }
 
@@ -158,7 +161,7 @@ public class ApiCYMD {
                 },
                 (VolleyError error) -> {
                     MainActivity.getContext().humeurPosted(false);
-                    System.out.println("ERREUR : " + error.getMessage());
+                    ApiCYMD.gestionErreurBase(error);
                 }
         );
     }

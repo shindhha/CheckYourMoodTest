@@ -81,10 +81,8 @@ public class MainActivity extends AppCompatActivity {
             String mdp = txtPassword.getText().toString().trim();
 
             if (identifiant.length() == 0 || mdp.length() == 0) {
-                //TODO TOAST ERREUR
-                System.out.println("ERREUR, identifiant ou mot de passe vide");
+                Toast.makeText(context, getString(R.string.toast_erreur_creds_vide), Toast.LENGTH_SHORT).show();
             } else {
-                System.out.println("Connexion en cours...");
                 ApiCYMD.auth(identifiant, mdp);
             }
 
@@ -220,8 +218,7 @@ public class MainActivity extends AppCompatActivity {
                     heurePicker.getHour(), heurePicker.getMinute(), 0);
 
             if (dateSelec.getTimeInMillis() > Calendar.getInstance().getTimeInMillis() || dateSelec.getTimeInMillis() < Calendar.getInstance().getTimeInMillis() - 1000 * 60 * 60 * 24) {
-                //TODO TOAST ERREUR
-                System.out.println("ERREUR, date ou heure invalide");
+                Toast.makeText(context, getString(R.string.toast_erreur_date_heure_invalide), Toast.LENGTH_LONG).show();
             } else {
                 dateHeure.setText(getString(R.string.date_heure, DateFormatter.getTime(dateSelec)));
                 popupDateHeure.dismiss();
