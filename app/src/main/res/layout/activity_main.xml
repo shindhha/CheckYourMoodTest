@@ -51,6 +51,14 @@
             </TableLayout>
         </HorizontalScrollView>
 
+        <Button
+            android:id="@+id/btn_rafraichir"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/rafraichir"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="@dimen/margin_space"/>
+
         <View style="@style/divider"/>
 
         <TextView

@@ -30,6 +30,6 @@
     <string name="toast_erreur_date_heure_invalide">L\'heure entrée ne rentre pas dans l\'intervalle autorisé de 24h</string>
 
     <string name="toast_success_humeur">Humeur postée !</string>
-
+    <string name="rafraichir">Rafraichir</string>
 
 </resources>

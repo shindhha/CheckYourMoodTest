@@ -63,6 +63,11 @@ public class MainActivity extends AppCompatActivity {
         Button btnAjouterHumeur = findViewById(R.id.btn_poster_humeur);
         btnAjouterHumeur.setOnClickListener(this::posterHumeur);
 
+        Button btnRafraichir = findViewById(R.id.btn_rafraichir);
+        btnRafraichir.setOnClickListener((View view) -> {
+            ApiCYMD.getUserHumeurs();
+        });
+
         // ===================== Affichage de la popup de connexion =====================
 
         popupDateHeure = new Dialog(this);
