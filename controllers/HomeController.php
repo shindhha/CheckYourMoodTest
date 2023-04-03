@@ -1,6 +1,6 @@
 <?php
 namespace controllers;
-require_once 'services/donneesservice.php';
+require_once 'services/DonneesService.php';
 require_once 'services/HomeService.php';
 
 use Modeles\QueryBuilder;
@@ -19,7 +19,6 @@ class HomeController {
 
     public function __construct($donneesService = null, $homeService = null, $moodService = null)
     {
-<<<<<<< HEAD
         if ($donneesService == null){
             $this->donneesService = DonneesService::getDefaultDonneesService();
             $this->homeService = HomeService::getDefaultHomeService();
@@ -28,16 +27,6 @@ class HomeController {
             $this->donneesService = $donneesService;
             $this->homeService = $homeService;
             $this->moodService = $moodService;
-=======
-        if ($DonneesService == null){
-            $this->DonneesService = DonneesService::getDefaultDonneesService();
-            $this->HomeService = HomeService::getDefaultHomeService();
-            $this->MoodServiceoodService = MoodService::getDefaultMoodService();
-        }else{
-            $this->DonneesService = $DonneesService;
-            $this->HomeService = $HomeService;
-            $this->MoodService = $MoodService;
->>>>>>> origin/AmeliorationTestDonneesServices
         }
 
     }
@@ -59,14 +48,14 @@ class HomeController {
             $_SESSION["$key"] = $value;
         }
 
-		$_SESSION['id'] = $infos["util"];		
+		$_SESSION['id'] = $infos["util"];
 		$_SESSION['numeroSession']=session_id();// Stockage numéro de session pour éviter les piratages.
 
         //Libelle disponible
-        $libelles = $this->MoodService->libelles($pdo);
+        $libelles = $this->moodService->libelles($pdo);
 
         // Nombre d'humeurs global
-        $nbHumeur = $this->DonneesService->nombreHumeur($pdo, $infos['util'])->fetchColumn(0);
+        $nbHumeur = $this->donneesService->nombreHumeur($pdo, $infos['util'])['nbHumeur'];
 
         // On détermine le nombre d'humeurs par page
         $parPage = 9;
@@ -76,12 +65,12 @@ class HomeController {
 
         // Page actuelle
         $currentPage = 1;
-        
+
         // Calcul du 1er article de la page
         $premier = ($currentPage * $parPage) - $parPage;
 
         // On récupère les humeurs à afficher sur la page no 1
-        $humeurs = $this->DonneesService->viewMoodsPagination($pdo, $infos['util'], $premier, $parPage);
+        $humeurs = $this->donneesService->viewMoodsPagination($pdo, $infos['util'], $premier, $parPage);
 
         //Création de la vue et set vraiable
         $view = new View("check-your-mood/views/humeurs");

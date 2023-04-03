@@ -1,9 +1,9 @@
 <?php
 
-namespace Modeles;
+namespace modeles;
 require_once 'modeles/Table.php';
 
-class TableTest extends Table
+class TableDeTest extends Table
 {
     protected $tableName = "tests";
     protected array $fillable = ['nomTest', 'description', 'id'];
