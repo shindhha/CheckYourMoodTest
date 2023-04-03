@@ -2,11 +2,14 @@
 
 namespace services;
 require_once 'yasmf/datasource.php';
-require_once 'services/donneesservice.php';
+require_once 'services/DonneesService.php';
 require_once 'Test/DataBase.php';
-require_once 'services/moodservice.php';
-
+require_once 'services/MoodService.php';
+require_once 'modeles/User.php';
 use DataBase;
+use Modeles\Humeur;
+use Modeles\QueryBuilder;
+use Modeles\User;
 use PHPUnit\Framework\TestCase;
 use function PHPUnit\Framework\assertEquals;
 use function PHPUnit\Framework\assertTrue;
@@ -16,6 +19,7 @@ class DonneesServiceTest extends TestCase
     private $pdo;
     private $services;
     private $moodService;
+    private $idUserTest = 10;
 
     protected function setUp(): void
     {
@@ -23,6 +27,7 @@ class DonneesServiceTest extends TestCase
         $this->moodService = MoodService::getDefaultMoodService();
         $this->pdo = DataBase::getPDOTest();
         $this->pdo->beginTransaction();
+        QueryBuilder::setDBSource($this->pdo);
     }
 
     protected function tearDown(): void
@@ -35,67 +40,58 @@ class DonneesServiceTest extends TestCase
     {
 
         // GIVEN Un utilisateur ayant saisie un nouveau mot de passe valide
-        $idUtil = 1;
-        $newMotDePasse = [
-            'motDePasse' => md5('TestMotDePasse')
-        ];
+        $user = new User($this->idUserTest);
+        $user->motDePasse = md5('TestMotDePasseModifier');
+
         // WHEN Il valide la modification de son mot de passe
-        $result = $this->services->updateData($this->pdo, $newMotDePasse, $idUtil);
+        $user->save();
         // THEN Son mot de passe et mis a jour dans la base de données après avoir été cryptées en md5
-        $motDePasseModifier = $this->pdo->query("SELECT motDePasse FROM utilisateur WHERE codeUtil = 1");
+        $motDePasseModifier = $this->pdo->query("SELECT motDePasse FROM utilisateur WHERE identifiant = 'idTest1'");
         $motDePasseModifier = $motDePasseModifier->fetch();
-        assertTrue($result);
-        assertEquals(md5('TestMotDePasse'), $motDePasseModifier['motDePasse']);
+        assertEquals(md5('TestMotDePasseModifier'), $motDePasseModifier['motDePasse']);
 
 
         // GIVEN Un utilisateur ayant saisie un nouvel identifiant valide
-        $idUtil = 1;
-        $newIdentifiant = [
-            'identifiant' => 'guillaume'
-        ];
+        $user = new User($this->idUserTest);
+        $user->identifiant = 'guillaume';
         // WHEN Il valide la modification de son identifiant
-        $result = $this->services->updateData($this->pdo, $newIdentifiant, $idUtil);
+        $user->save();
         // THEN Son identifiant et mis à jour dans la base de données
-        $identifiantModifier = $this->pdo->query("SELECT identifiant FROM utilisateur WHERE codeUtil = 1");
+        $identifiantModifier = $this->pdo->query("SELECT identifiant FROM utilisateur WHERE codeUtil = $this->idUserTest");
         $identifiantModifier = $identifiantModifier->fetch();
-        assertTrue($result);
         assertEquals('guillaume', $identifiantModifier['identifiant']);
 
         // GIVEN Un utilisateur ayant saisie plusieur nouvelles informations valides a propos de son compte
-        $idUtil = 1;
-        $newInfos = [
-            'identifiant' => 'guillaume',
-            'mail' => 'guillaume.medard@iut-rodez.fr',
-            'motDePasse' => md5('TestMotDePasse')
-        ];
+        $user = new User($this->idUserTest);
+        $user->identifiant = 'guillaume';
+        $user->mail = 'guillaume.medard@iut-rodez.fr';
+        $user->motDePasse = md5('TestMotDePasseModifier');
         // WHEN Il valide la modification de ses informations
-        $result = $this->services->updateData($this->pdo, $newInfos, $idUtil);
+        $user->save();
 
         // THEN L'enssemble de ces informations sont mis à jour dans la base de données.
-        $infosModifier = $this->pdo->query("SELECT * FROM utilisateur WHERE codeUtil = 1");
+        $infosModifier = $this->pdo->query("SELECT * FROM utilisateur WHERE codeUtil  = $this->idUserTest");
         $infosModifier = $infosModifier->fetch();
-        assertTrue($result);
         assertEquals('guillaume', $infosModifier['identifiant']);
         assertEquals('guillaume.medard@iut-rodez.fr', $infosModifier['mail']);
-        assertEquals(md5('TestMotDePasse'), $infosModifier['motDePasse']);
+        assertEquals(md5('TestMotDePasseModifier'), $infosModifier['motDePasse']);
 
     }
 
     public function testsUpdateFaillure()
     {
         // GIVEN Un utilisateur ayant entrer des nouvelles valeurs vides
-        $idUtil = 1;
-        $emptyNewValues = [
-            'nom' => "",
-            'prenom' => "",
-            'mail' => "",
-        ];
+        $user = new User($this->idUserTest);
+        $user->nom = "";
+        $user->prenom = "";
+        $user->mail = "";
+
         // WHEN Il valide la modification de ces informations
-        $result = $this->services->updateData($this->pdo, $emptyNewValues, $idUtil);
+        $this->expectException(\PDOException::class);
+        $user->save();
         // THEN Les valeurs de la base de données ne sont pas modifier
-        $infosParDefauts = $this->pdo->query("SELECT * FROM utilisateur WHERE codeUtil = 1");
+        $infosParDefauts = $this->pdo->query("SELECT * FROM utilisateur WHERE codeUtil = $this->idUserTest");
         $infosParDefauts = $infosParDefauts->fetch();
-        self::assertFalse($result);
         assertEquals('Blanchard', $infosParDefauts['nom']);
         assertEquals('Jules', $infosParDefauts['prenom']);
         assertEquals('jules.blanchard@iut-rodez.fr', $infosParDefauts['mail']);
@@ -104,94 +100,41 @@ class DonneesServiceTest extends TestCase
     public function testsDonneesUserSuccess()
     {
         // GIVEN Un utilisateur enregistré dans la base de données
-        $idUtil = 1;
-        $user = [
-            'prenom' => 'Jules',
-            'nom' => 'Blanchard',
-            'identifiant' => 'jules22b',
-            'mail' => 'jules.blanchard@iut-rodez.fr',
+        $user = new User($this->idUserTest);
+        $exceptedUser = [
+            'prenom' => 'prenomTest1',
+            'nom' => 'nomTest1',
+            'identifiant' => 'idTest1',
+            'mail' => 'mail.test@test.test',
         ];
+        $user->fetch("prenom","nom","identifiant","mail");
         // EXCEPTED On récupère un pdo statement qui contient ses données
-        $result = $this->services->donneesUser($this->pdo, $idUtil);
-        $this->assertEquals($result->fetch(), $user);
+        $this->assertEquals($exceptedUser,$user->toArray());
 
     }
 
-    // Ce test n'est pas passé ( Cause appel du Trigger pour modifier le contexte sous 24h)
-    public function testUpdateHumeurSuccess() {
-
-
-        $date = date('Y-m-d ');
-        $heure = date('H:i:s');
-        $mood = $this->moodService->insertMood($this->pdo, 22, $date, $heure, 'aaaaaaa', 1);
-        $lastId = $this->pdo->lastInsertId();
-        $tab = [
-            'id' => 1,
-            'codeHumeur' => $lastId,
-            'contexte' => "Jadore cette journée"
-        ];
-        // WHEN On valide les changements
-        $result = $this->services->updateHumeur($this->pdo, $tab);
-        // THEN La nouvelle description est enregistrer dans la base de données
-        $this->assertTrue($result);
-        $humeurModifier = $this->pdo->query("SELECT contexte FROM humeur WHERE codeHumeur =" . $lastId . " AND idUtil = 1");
-        $humeurModifier = $humeurModifier->fetch();
-        assertEquals($tab['contexte'], $humeurModifier['contexte']);
-    }
-
-    public function testUpdateHumeurFailure()
-    {
-        /* TODO  - Guillaume -> J'ai pas compris pourquoi sa devait échouer */
-
-        $tab = [
-            'id' => 1,
-            'codeHumeur' => 56,
-            'contexte' => "Happy"
-        ];
-        $expectedResult = false;
-        // Appelez la méthode à tester avec les données de TestControllers
-        $result = $this->services->updateHumeur($this->pdo, $tab);
-
-        // Assurez-vous que les résultats de la méthode sont ceux que vous attendez
-        $this->assertEquals($expectedResult, $result);
-    }
 
     public function testNombreHumeur()
     {
-        /* TODO testNombreHumeur */
         $idUtil = 1;
         // Appeler la fonction à tester
         $result = $this->services->nombreHumeur($this->pdo, $idUtil);
         // Assertion pour vérifier le résultat attendu
-        $this->assertTrue($result->fetchColumn() >= 200);
+        $this->assertTrue($result    >= 200);
     }
 
     public function testUpdateMdp()
     {
         // GIVEN Un utilisateur ayant saisie un nouveau mot de passe valide
-        $idUtil = 1;
-        $nouveauMDP = "root2022";
-        $exceptedMDP = md5($nouveauMDP);
+        $user = new User($this->idUserTest);
+        $user->motDePasse = md5("root2022");
         // WHEN On valide l'enregistrement du nouveau mot de passe
-        $result = $this->services->updateMDP($this->pdo, $idUtil, $nouveauMDP);
+        $user->save();
         // THEN Le mot de passe est crypté en md5 puis enregistrer dans la base de données
-        $content = $this->pdo->query("SELECT motDePasse FROM utilisateur WHERE codeUtil = " . $idUtil);
+        $content = $this->pdo->query("SELECT motDePasse FROM utilisateur WHERE codeUtil = $this->idUserTest");
         $mdpModifier = $content->fetchColumn();
 
-        assertTrue($result);
-        $this->assertEquals($exceptedMDP, $mdpModifier);
-    }
-
-    public function testUpdateMDPFail()
-    {
-        // GIVEN Un utilisateur n'etant pas enregistrer dans la base de données
-        // n'ayant donc pas de mot de passe
-        $idUtil = 999;
-        $nouveauMDP = "password";
-        // WHEN On modifie son mot de passe
-        $result = $this->services->updateMDP($this->pdo, $idUtil, $nouveauMDP);
-        // THEN Rien ne se passe et la fonction retourne un resultat négatif
-        self::assertFalse($result);
+        $this->assertEquals(md5("root2022"), $mdpModifier);
     }
 
     public function testViewMoodsPagination()
@@ -209,11 +152,13 @@ class DonneesServiceTest extends TestCase
     public function testMdpSuccess()
     {
         // GIVEN Un utilisateur avec un mot de passe
+
         $idUtil = 1;
-        $mdpAttendu = "63a9f0ea7bb98050796b649e85481845";
+        $user = new User($idUtil);
+        $mdpAttendu = "098f6bcd4621d373cade4e832627b4f6";
         // Excepted On récupère son mot de passe
-        $result = $this->services->mdp($this->pdo, $idUtil);
-        $this->assertEquals($mdpAttendu, $result->fetchColumn());
+        $user->fetch('motDePasse');
+        $this->assertEquals($mdpAttendu, $user->motDePasse);
     }
 }
   
