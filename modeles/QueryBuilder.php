@@ -1,29 +1,41 @@
 <?php
 
 namespace Modeles;
-
+use PDOStatement;
+use UnexpectedValueException;
+use PDO;
 class QueryBuilder
 {
     // La requete construite
-    private $query;
+    private mixed $query;
     // Objet PDO établissant la connexion a la base de données
-    private static $pdo;
+    private static ?PDO $pdo;
     // Champ souhaiter lors d'une requete select
-    private $fields = [];
+    private array $fields;
     // Parametre généraux de la requete
-    private $params = [];
+    private array $params;
     // Les condition sont stocker sous forme de string
-    private $whereClose = [];
+    private array $whereClose;
     // Nom de la table cible
-    private $tableName;
+    private string $tableName;
+
+    private function __construct()
+    {
+        $this->query = null;
+        $this->fields = [];
+        $this->params = [];
+        $this->whereClose = [];
+    }
+
     /**
      * Substitue du constructeur par défaut , plus explicite car on comprend que
      * l'on doit renseigne un nom de table en argument.
      * Permet également d'écrire les requetes d'une seule traite.
-     * @param $tableName nom de la table par defaut dans laquelle faire la requete
-     * @return Queries la nouelle requete sql
+     * @param string $tableName nom de la table par defaut dans laquelle faire la requete
+     * @return QueryBuilder le nouveau constructeur de requete sql
      */
-    public static function Table($tableName) {
+    public static function Table(string $tableName): QueryBuilder
+    {
         $q = new QueryBuilder();
         $q->tableName = $tableName;
         return $q;
@@ -33,7 +45,8 @@ class QueryBuilder
      * Permet de changer le lien vers la base de données
      * @param $pdo l'objet pdo du lien vers la base de données
      */
-    public static function setDBSource($pdo) {
+    public static function setDBSource($pdo): void
+    {
         static::$pdo = $pdo;
     }
 
@@ -44,7 +57,8 @@ class QueryBuilder
      * @param ...$params Liste des colonnes sous forme d'argument
      * @return $this la requete pour continuer la construction en chaine
      */
-    public function select(...$params) {
+    public function select(...$params): QueryBuilder
+    {
         foreach ($params as $param) {
             $this->fields[] = $param;
         }
@@ -53,33 +67,35 @@ class QueryBuilder
 
     /**
      * Permet d'ajouter une condition a la requete sql.
-     * @param $columnName Colonne concerné par la condition.
+     * @param string $columnName Colonne concerné par la condition.
+     * @param string $operator Indique comment la colonne doit matcher la valeur.
      * @param $value Valeur que doit matcher la colonne en fonction de l'operateur.
-     * @param $operateur Indique comment la colonne doit matcher la valeur.
      * @return $this la requete pour continuer la construction en chaine
      */
-    public function where($columnName,$operateur = '=',$value = null) {
+    public function where(string $columnName, string $operator = '=', mixed $value = null) {
         if ($value === null) {
-            $value = $operateur;
-            $operateur = "=";
+            $value = $operator;
+            $operator = "=";
         }
-        $this->whereClose[] = $columnName . " " . $operateur . " :" . $columnName;
+        $this->whereClose[] = $columnName . " " . $operator . " :" . $columnName;
         $this->params[$columnName] = $value;
         return $this;
     }
 
     /**
      * Permet de construire une requete update en spécifiant les colonnes concerné dans $column
-     * @param $column Liste des colonnes dont la valeur doit changer.
+     * @param array $column Liste des colonnes dont la valeur doit changer.
      *                Les valeurs sont également spécifier sous cette forme [column => valeur]
-     * @return mixed le statement pdo de la requete après avoir été éxécuter avec les parametres
+     * @return QueryBuilder le constructeur de requete courant
      */
-    public function update($column) {
+    public function update(array $column): QueryBuilder
+    {
+        $params = "";
         foreach ($column as $keys => $value) {
             if ($value != null) {
                 $this->params[$keys] = $value;
                 if ($params != "") $params .= ",";
-                if ($keys != '') $params .= $keys . " = :" . $keys;
+                $params .= $keys . " = :" . $keys;
             }
         }
         $this->query =  "UPDATE " . $this->tableName . " SET " . $params . $this->getWhereClose();
@@ -88,9 +104,11 @@ class QueryBuilder
 
     /**
      * Execute la requete de type select précédement construite puis renvoie le pdo statement
-     * @return mixed le pdo statement correspondant a la requete construite
+     * @return string Une requete sql de type select
      */
-    private function construct_select_request() {
+    private function construct_select_request(): string
+    {
+        $select = "";
         if (empty($this->fields)) {
             $select = "*";
         } else {
@@ -109,8 +127,9 @@ class QueryBuilder
      * ensuite utilise dans la construction des requete.
      * @return string conditions sous chaine de caractère
      */
-    private function getWhereClose()
+    private function getWhereClose(): string
     {
+        $closes = "";
         foreach ($this->whereClose as $close) {
             if ($closes == "") {
                 $closes = " WHERE ";
@@ -124,10 +143,13 @@ class QueryBuilder
 
     /**
      * Construit la requete sql permetant d'insert une ligne dans la base de données
-     * @param $column
-     * @return mixed
+     * @param array $column Le tableau des champs a insérer ['colonne' => 'valeur']
+     * @return QueryBuilder Le constructeur de requete courant
      */
-    public function insert($column) {
+    public function insert(array $column): QueryBuilder
+    {
+        $fields = "";
+        $params = "";
         foreach ($column as $keys => $value) {
             if ($fields != "") {
                 $fields .= ",";
@@ -141,12 +163,16 @@ class QueryBuilder
         return $this;
     }
     /**
-     * Prepare et Execute la requete avec les arguments avec l'objet pdo
-     * @return void
+     * Prepare et Execute la requete avec ses arguments par l'objet pdo
+     * @return PDOStatement Le statement résultant de l'éxécution par l'objet pdo
      */
-    public function execute() {
+    public function execute(): \PDOStatement
+    {
         if ($this->query == null) {
             $this->query = $this->construct_select_request();
+        }
+        if (static::$pdo == null) {
+            throw new UnexpectedValueException();
         }
         $stmt = static::$pdo->prepare($this->query);
         $stmt->execute($this->params);

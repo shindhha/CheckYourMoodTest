@@ -1,20 +1,18 @@
 <?php
 
 namespace modeles;
-require_once 'yasmf/datasource.php';
-
 use DataBase;
 use Models\Table;
 use Models\User;
 use PHPUnit\Framework\TestCase;
 use services\Mood;
 use function PHPUnit\Framework\assertEquals;
-
 require_once 'Test/DataBase.php';
 require_once 'modeles/Table.php';
 require_once 'modeles/QueryBuilder.php';
-
-class TestQueryBuilder extends TestCase
+require_once 'yasmf/datasource.php';
+use UnexpectedValueException;
+class QueryBuilderTest extends TestCase
 {
     private $pdo;
     private $services;
@@ -136,17 +134,26 @@ class TestQueryBuilder extends TestCase
     {
         // GIVEN Un objet QureyBuilder sur la table 'utilisateur' sur lequel
         $tab = [
-            'nom' => 'Medard',
-            'prenom' => 'Guillaume',
-            'identifiant' => 'guigui',
-            'mail' => 'guillaume.medard@iut-rodez.fr',
-            'motDePasse' => md5('guigui')
+            'nom' => 'nomInsert',
+            'prenom' => 'nomInsert',
+            'identifiant' => 'nomInsert',
+            'mail' => 'nomInsert@nomInsert.nomInsert',
+            'motDePasse' => md5('nomInsert')
         ];
         // On demande de construire une requete de type INSERT
         $stmt = QueryBuilder::Table('utilisateur')
             ->insert($tab)->execute();
         /* EXCEPTED On obtient la requete attendue */
-        $result = $this->pdo->query("SELECT nom,prenom,identifiant,mail,motDePasse FROM utilisateur where identifiant = 'guigui'");
+        $result = $this->pdo->query("SELECT nom,prenom,identifiant,mail,motDePasse FROM utilisateur where identifiant = 'nomInsert'" );
         assertEquals($result->fetch(), $tab);
+    }
+
+    public function testPdoNotSetUp() {
+        // GIVEN La connexion a la base de données n'est pas donné
+        QueryBuilder::setDBSource(null);
+        // EXCEPTED Une exception est levée au moment ou on tente d'éxécuter la requete
+        $this->expectException(UnexpectedValueException::class);
+        QueryBuilder::Table('utilisateur')->execute();
+
     }
 }
