@@ -11,8 +11,8 @@ use services\Mood;
 use function PHPUnit\Framework\assertEquals;
 
 require_once 'Test/DataBase.php';
-require_once 'Modeles/Table.php';
-require_once 'Modeles/QueryBuilder.php';
+require_once 'modeles/Table.php';
+require_once 'modeles/QueryBuilder.php';
 
 class TestQueryBuilder extends TestCase
 {
