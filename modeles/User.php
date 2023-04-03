@@ -5,7 +5,7 @@ require_once 'Table.php';
 class User extends Table
 {
     protected $tableName = "utilisateur";
-    protected $fillable = ['prenom','nom','identifiant','mail','motDePasse'];
+    protected array $fillable = ['prenom','nom','identifiant','mail','motDePasse'];
     protected $primaryKey = "codeUtil";
 
     public function __construct($id = 0)

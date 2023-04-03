@@ -1,12 +1,11 @@
 <?php
 
 namespace Modeles;
-require_once 'Modeles/QueryBuilder.php';
-
-use http\Exception\InvalidArgumentException;
+require_once 'modeles/QueryBuilder.php';
+use InvalidArgumentException;
 use UnexpectedValueException;
 use Modeles\QueryBuilder;
-
+use AllowDynamicProperties;
 /**
  * Etendre un objet par cette classe permet d'interagir avec la base de données
  * en utilisant la programmation orienté objet.
@@ -16,13 +15,15 @@ use Modeles\QueryBuilder;
  * pourra être représenter donnant la valeur 'utilisateurs' a l'attribut 'tableName'
  * et en donnant un tableau ['pseudo','motDePasse'] à l'attribut 'fillable'.
  */
-class Table
+#[\AllowDynamicProperties]
+class Table extends \stdClass
 {
     protected $tableName;
-    protected $fillable;
+    protected array $fillable;
+    public array $attributes;
     protected $primaryKey = "id";
     private $tableIdWithComplexeNameToPreventFromUnExceptedAssignmentByMethodFill;
-    protected function __construct($id = 0)
+    protected function __construct(int $id = 0)
     {
         if ($id < 0) {
             throw new InvalidArgumentException("L'id ne peut pas être inférieure à 0");
@@ -44,8 +45,8 @@ class Table
         if ($this->getId() == 0) {
            throw new UnexpectedValueException("Aucune ligne ne peut avoir l'id 0 !");
         }
-        $dataValues = Queries::Table($this->tableName)
-            ->select($column)
+        $dataValues = QueryBuilder::Table($this->tableName)
+            ->select(...$column)
             ->where($this->primaryKey,$this->getId())
             ->execute()->fetch();
         // puis on initialise les attributs de l'objet aux valeurs de la base
@@ -59,24 +60,25 @@ class Table
      * avec les valeurs passé en argument.
      * Si un attribut n'est pas lister dans values alors on assignera
      * la valeur null a l'attribut.
-     * @param values Les valeurs a associer aux attributs de l'objet
+     * @param array $values Les valeurs a associer aux attributs de l'objet
      *               sous forme d'un tableau ['clef' => 'valeur' , ...]
      */
-    public function fill($values) {
+    public function fill(array $values) {
         if (array_key_exists($this->getIdKeyName(),$values)) {
             throw new UnexpectedValueException("Il est interdit d'utiliser une cle avec se nom");
         }
         foreach ($this->fillable as $keys) {
+            if (array_key_exists($keys,$values))
             $this->$keys = $values[$keys];
         }
     }
     /**
      * Associe les attributs null de l'objet lister dans 'fillable'
      * avec les valeurs passé en argument.
-     * @param values Les valeurs a associer aux attributs de l'objet
+     * @param array $values Les valeurs a associer aux attributs de l'objet
      *               sous forme d'un tableau ['clef' => 'valeur' , ...]
      */
-    public function fillWithoutOverride($values) {
+    public function fillWithoutOverride(array $values) {
         foreach ($this->fillable as $keys) {
             if ($this->$keys == null) {
                 $this->$keys = $values[$keys];
@@ -109,16 +111,36 @@ class Table
         if ($this->getId() == 0) {
             $this->setId($q->insert($this->toArray())->execute());
         } else {
-            $queries = $q->where($this->primaryKey,$this->getId())
-                       ->update($this->toArray())->execute();
+            $q->where($this->primaryKey,$this->getId())
+                ->update($this->toArray())->execute();
         }
+        return $q;
+    }
+    /**
+     * @param string $name
+     * @return mixed
+     */
+    public function __get(string $name) : mixed
+    {
+        return $this->attributes[$name] ?? null;
+    }
+    /**
+     * @param string $name
+     * @param mixed $value
+     */
+    public function __set(string $name, mixed $value): void
+    {
+        if (in_array($name,$this->fillable))
+        $this->attributes[$name] = $value;
     }
 
     /**
      * Assigne null a tout les attributs lister dans fillable
      */
     public function reset() {
-        $this->fill([]);
+        foreach ($this->fillable as $keys) {
+            unset($this->$keys);
+        }
     }
 
     public function getPrimaryKey() {
