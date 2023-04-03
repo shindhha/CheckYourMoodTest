@@ -45,6 +45,10 @@ class View
         return $this->viewParams[$key];
     }
 
+    public function getVars() {
+        return $this->viewParams;
+    }
+
     public function render()
     {
         // convert view params in variables accessible by the php file

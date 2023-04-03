@@ -58,4 +58,5 @@ CREATE TABLE `utilisateur` (
                                `motDePasse` varchar(200) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO utilisateur (prenom,nom,pseudo,identifiant,mail,motDePasse) VALUES ('prenomTest1','nomTest1','idTest1','mail.test@test.test',MD5('test'));
+INSERT INTO utilisateur (prenom,nom,pseudo,identifiant,mail,motDePasse) VALUES ('prenomTest1','nomTest1','idTest1','mail.test@test.test',MD5('TestMotDePasse'));
+SET time_zone = "+01:00";

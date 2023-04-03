@@ -3,8 +3,8 @@
 
 namespace services;
 
-require_once 'Modeles/User.php';
-require_once 'Modeles/QueryBuilder.php';
+require_once 'modeles/User.php';
+require_once 'modeles/QueryBuilder.php';
 use PDOException;
 use Modeles\User;
 use Modeles\QueryBuilder;
@@ -15,7 +15,7 @@ class HomeService
      * @param $identifiant id de l'utilisateur
      * @param $mdpUtil mot de passe de l'utilisateur
      * @param $pdo \PDO the pdo object
-     * @return \PDOStatement the statement referencing the result set
+     * @return array $infos Les informations de l'utilisateur stocker dans la base de données
      */
     public function connexion($pdo, $identifiant, $mdpUtil)
     {
@@ -28,7 +28,7 @@ class HomeService
         if ($searchStmt->rowCount() > 0) {
             $row = $searchStmt->fetch();
             $infos = [
-                "idUtil" => $row['codeUtil'],
+                "util" => $row['codeUtil'],
                 "nom" => $row['nom'],
                 "prenom" => $row['prenom'],
                 "mail" => $row['mail']

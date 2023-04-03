@@ -3,17 +3,17 @@
 
 namespace services;
 
-use PDOException;
-
+use PDO;
+use PDOStatement;
 class MoodService
 {
     /**
      * Cette fonction permet de visualisé l'ensemble des humeurs
-     * @param pdo 
-     * @param idUtil 
+     * @param PDO $pdo la connexion a la base de données
+     * @param int $idUtil clé primaire de l'utilisateur dans la base de données
      * @return \PDOStatement the statement referencing the result set
      */
-    public function viewMoods($pdo, $idUtil)
+    public function viewMoods(PDO $pdo,int $idUtil): \PDOStatement
     {
         $sql = "SELECT h.codeHumeur, h.dateHumeur, h.heure, h.contexte, l.libelleHumeur, l.emoji, h.idUtil FROM humeur h, libelle l WHERE h.libelle = l.codeLibelle AND idUtil = :id ORDER BY h.dateHumeur DESC, h.heure DESC";
         $searchStmt = $pdo->prepare($sql);
@@ -23,8 +23,8 @@ class MoodService
     }
     /**
      * Cette fonction récuperer l'ensemble des libelles
-     * @param pdo 
-     * @return searchStmt PDO Object qui stock tout les libelles d'humeur
+     * @param PDO $pdo la connexion a la base de données
+     * @return \PDOStatement $searchStmt PDO Object qui stock tout les libelles d'humeur
      */
     public function libelles($pdo){
         $sql = "SELECT codeLibelle, libelleHumeur, emoji FROM Libelle ORDER BY libelleHumeur";
@@ -32,32 +32,7 @@ class MoodService
         $searchStmt->execute();
         return $searchStmt;
     }
-    /**
-     * Cette fonction permet d'inserer une humeur en fonction des paramètres
-     * @param code code de l'humeur
-     * @param date
-     * @param heure
-     * @param contexte contexte de l'humeur
-     * @param util id de l'utilisateur
-     */
-    public function insertMood($pdo, $code, $date, $heure, $contexte, $util){
 
-        try{
-
-            $sql = "INSERT INTO humeur(libelle,dateHumeur,heure,idUtil,contexte) VALUES(:libelle,:dateA,:heure,:id,:contexte)";
-            $searchStmt = $pdo->prepare($sql);
-            $searchStmt->bindParam('id', $util);
-            $searchStmt->bindParam('libelle', $code);
-            $searchStmt->bindParam('dateA', $date);
-            $searchStmt->bindParam('heure', $heure);
-            $searchStmt->bindParam('contexte', $contexte);
-            $searchStmt->execute();
-
-            return "ok";
-        }catch(PDOException $e){
-            return "nOk";
-        }
-    }
 
 
     private static $defaultMoodService;

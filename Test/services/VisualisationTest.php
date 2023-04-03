@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 require_once 'yasmf/datasource.php';
 
-require_once 'services/visualisationservice.php';
+require_once 'services/VisualisationService.php';
 
 require_once 'Test/DataBase.php';
 

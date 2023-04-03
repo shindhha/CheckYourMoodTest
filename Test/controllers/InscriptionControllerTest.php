@@ -2,9 +2,9 @@
 
 namespace controllers;
 require_once 'yasmf/datasource.php';
-require_once 'services/donneesservice.php';
+require_once 'services/DonneesService.php';
 require_once 'Test/DataBase.php';
-require_once 'services/moodservice.php';
+require_once 'services/MoodService.php';
 require_once 'controllers/inscriptioncontroller.php';
 
 use DataBase;
@@ -44,7 +44,7 @@ class InscriptionControllerTest extends \PHPUnit\Framework\TestCase
         $_POST['prenom'] = "test";
         // Et un objet user qui s'enregistre correctement dans la base de données.
         // WHEN On appelle la fonction siging du controller d'inscription
-        $returnedView = $this->inscriptioncontroller->signin($this->pdo, $this->user);
+        $returnedView = $this->inscriptioncontroller->signin($this->pdo,$this->user);
         // THEN L'inscription est valider et on arrive sur la page de connexion
         $expectedView = new View("check-your-mood/views/connexion");
         self::assertEquals($expectedView, $returnedView);

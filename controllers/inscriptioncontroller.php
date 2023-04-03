@@ -1,6 +1,6 @@
 <?php
 namespace controllers;
-require_once 'Modeles/User.php';
+require_once 'modeles/User.php';
 use Modeles\QueryBuilder;
 use yasmf\HttpHelper;
 use yasmf\HttpHelper\getParam;
@@ -13,17 +13,18 @@ class InscriptionController {
 
         $user = $userTest === null ? new User() : $userTest;
         $view = new View("check-your-mood/views/inscription");
-        $user->identifiant = htmlspecialchars(HttpHelper::getParam('identifiant'));
-        $user->motDePasse = htmlspecialchars(HttpHelper::getParam('motdepasse'));
-        $user->mail = htmlspecialchars(HttpHelper::getParam('mail'));
-        $user->nom = htmlspecialchars(HttpHelper::getParam('nom'));
-        $user->prenom = htmlspecialchars(HttpHelper::getParam('prenom'));
+        $data['identifiant'] = htmlspecialchars(HttpHelper::getParam('identifiant'));
+        $data['motDePasse'] = htmlspecialchars(HttpHelper::getParam('motdepasse'));
+        $data['mail'] = htmlspecialchars(HttpHelper::getParam('mail'));
+        $data['nom'] = htmlspecialchars(HttpHelper::getParam('nom'));
+        $data['prenom'] = htmlspecialchars(HttpHelper::getParam('prenom'));
 
-        if ($user->identifiant == "" || $user->motDePasse == ""
-            || $user->mail == ""     || $user->nom == ""  || $user->prenom == "") {
+        if ($data['identifiant'] == "" || $data['motDePasse'] == ""
+            || $data['mail'] == ""     || $data['nom'] == ""  || $data['prenom'] == "") {
             return $view;
         }
-        $user->motDePasse = md5($user->motDePasse);
+        $user->fill($data);
+        $user->motDePasse = md5($data['motDePasse']);
 
         QueryBuilder::setDBSource($pdo);
         try {
